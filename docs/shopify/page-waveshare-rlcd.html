@@ -1,0 +1,230 @@
+<!-- ============================================================
+     PulseSensor on Waveshare ESP32-S3-RLCD-4.2 - Shopify page body
+     Draft for a future pulsesensor.com page.
+
+     Paste into Shopify page HTML source after replacing:
+       - Manifest URL
+       - GitHub source URL
+       - Raw image URLs if the repo name changes
+
+     Structure mirrors https://pulsesensor.com/pages/cyd:
+       flash, wire, what you'll see, features, Playground tie-ins,
+       troubleshooting, source, hardware details.
+     ============================================================ -->
+
+<style>
+  .rlcd-page { max-width: 900px; margin: 0 auto; color: #2B2B2B; line-height: 1.6; }
+  .rlcd-page h1 { font-size: 2.4rem; margin: 0 0 8px; color: #2B2B2B; }
+  .rlcd-page h2 { font-size: 1.6rem; margin: 36px 0 12px; color: #2B2B2B; border-bottom: 2px solid #2B2B2B; padding-bottom: 6px; display: inline-block; }
+  .rlcd-page h3 { font-size: 1.2rem; margin: 22px 0 8px; color: #2B2B2B; }
+  .rlcd-page p { margin: 8px 0 14px; }
+  .rlcd-page a { color: #1E88E5; text-decoration: none; }
+  .rlcd-page a:hover { text-decoration: underline; }
+  .rlcd-page code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: #F5F1EA; padding: 2px 6px; border-radius: 4px; font-size: 0.92em; color: #2B2B2B; }
+  .rlcd-page pre { background: #1A1A1A; color: #E8FFFB; padding: 14px 16px; border-radius: 6px; overflow-x: auto; }
+  .rlcd-page pre code { background: transparent; color: inherit; padding: 0; }
+  .rlcd-page table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+  .rlcd-page th, .rlcd-page td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #E5E0D6; }
+  .rlcd-page th { background: #FFFDF7; font-weight: 700; color: #2B2B2B; }
+  .rlcd-page ul, .rlcd-page ol { padding-left: 22px; }
+  .rlcd-page li { margin: 4px 0; }
+  .rlcd-page .lede { font-size: 1.15rem; color: #4A4A4A; margin-bottom: 24px; }
+  .rlcd-page .tag { display: inline-block; background: #2B2B2B; color: #fff; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+
+  .rlcd-flash-card { background: #FFFDF7; border: 2px solid #2B2B2B; border-radius: 10px; padding: 28px 24px; margin: 18px 0 28px; text-align: center; }
+  .rlcd-flash-card h2 { border: none; margin: 0 0 8px; font-size: 1.5rem; }
+  .rlcd-flash-card .req { color: #6B7280; font-size: 0.95rem; margin-bottom: 18px; }
+  .rlcd-flash-card esp-web-install-button { --esp-tools-button-background: #2B2B2B; --esp-tools-button-color: #FFFFFF; --esp-tools-button-border-radius: 6px; }
+  .rlcd-flash-card .activate-btn { appearance: none; border: 0; border-radius: 6px; background: #2B2B2B; color: #FFFFFF; font-size: 1.15rem; font-weight: 800; padding: 16px 32px; cursor: pointer; letter-spacing: 0.3px; }
+  .rlcd-flash-card .activate-btn:hover { background: #111111; }
+  .rlcd-flash-card .unsupported { display: block; margin-top: 14px; color: #B45309; font-weight: 600; }
+
+  .rlcd-warn { border-left: 4px solid #2B2B2B; background: #F7F7F2; padding: 12px 16px; margin: 14px 0; border-radius: 4px; color: #303030; }
+  .rlcd-note { border-left: 4px solid #6F35B5; background: #F7F1FF; padding: 12px 16px; margin: 14px 0; border-radius: 4px; color: #302440; }
+
+  .rlcd-screens { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 14px 0; }
+  .rlcd-screens figure { margin: 0; }
+  .rlcd-screens img { width: 100%; height: auto; border: 1px solid #E5E0D6; border-radius: 6px; background: #FAFAF4; }
+  .rlcd-screens figcaption { text-align: center; font-size: 0.9rem; color: #6B7280; margin-top: 6px; }
+  @media (max-width: 600px) { .rlcd-screens { grid-template-columns: 1fr; } }
+
+  .rlcd-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 14px 0; }
+  .rlcd-features .f { background: #FFFDF7; border: 1px solid #E5E0D6; border-radius: 6px; padding: 14px; }
+  .rlcd-features .f strong { color: #111111; }
+
+  .rlcd-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0; }
+  .rlcd-cards .card { border: 1px solid #E5E0D6; border-radius: 8px; padding: 18px; background: #FFFDF7; }
+  .rlcd-cards .card h3 { margin-top: 0; }
+  @media (max-width: 600px) { .rlcd-cards { grid-template-columns: 1fr; } }
+
+  .rlcd-page details { border: 1px solid #E5E0D6; border-radius: 6px; padding: 10px 14px; margin: 14px 0; background: #FFFDF7; }
+  .rlcd-page summary { cursor: pointer; font-weight: 700; }
+  .rlcd-hero { margin: 18px 0 24px; border-radius: 10px; overflow: hidden; border: 1px solid #E5E0D6; background: #FAFAF4; }
+  .rlcd-hero img { width: 100%; height: auto; display: block; }
+</style>
+
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+
+<div class="rlcd-page">
+
+  <span class="tag">Prototype Tutorial</span>
+  <h1>PulseSensor on Waveshare ESP32-S3-RLCD-4.2</h1>
+  <p class="lede"><strong>Try the monochrome version:</strong> Flash a Waveshare ESP32-S3-RLCD-4.2, wire the PulseSensor to the rear 2 x 8 female header, and watch a live pulse dashboard on the 400 x 300 reflective LCD. No WiFi, no IDE after flashing, and no backlight needed.</p>
+
+  <div class="rlcd-hero">
+    <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_RLCD/main/docs/wiring/pulsesensor-rlcd-block-diagram.svg" alt="Block diagram showing PulseSensor wired to the Waveshare ESP32-S3-RLCD-4.2 rear header and rendered on the monochrome RLCD" />
+  </div>
+
+  <p><em>This software is an educational biofeedback demo and is not intended for medical use.</em></p>
+
+  <div class="rlcd-flash-card">
+    <h2>Flash Your RLCD Board</h2>
+    <p class="req">Plug the Waveshare board into USB-C. Use <strong>Chrome, Edge, or Brave</strong> on a computer. Mobile browsers do not support WebSerial yet.</p>
+    <esp-web-install-button manifest="https://worldfamouselectronics.github.io/PulseSensor_RLCD/manifest.json">
+      <button slot="activate" class="activate-btn">Install PulseSensor RLCD</button>
+      <span slot="unsupported" class="unsupported">This browser does not support WebSerial. Open this page in Chrome, Edge, or Brave on a desktop or laptop.</span>
+      <span slot="not-allowed" class="unsupported">WebSerial is blocked. Make sure the page is loaded over HTTPS.</span>
+    </esp-web-install-button>
+    <p class="req" style="margin-top:18px;margin-bottom:0;">First time? After you click Install, your browser will ask which serial port to use. Pick the USB-C serial port for the Waveshare ESP32-S3 board.</p>
+  </div>
+
+  <h2>What Is Different From The CYD?</h2>
+  <p>The CYD version is a color touchscreen project. This version is intentionally smaller: a black-and-white live PulseSensor dashboard for the Waveshare reflective LCD board.</p>
+
+  <table>
+    <thead>
+      <tr><th>CYD tutorial</th><th>Waveshare RLCD tutorial</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>ESP32-2432S028 "Cheap Yellow Display"</td><td>Waveshare ESP32-S3-RLCD-4.2</td></tr>
+      <tr><td>320 x 240 ILI9341 color TFT</td><td>400 x 300 ST7305 monochrome reflective LCD</td></tr>
+      <tr><td>Touch controls, sound, rear LED</td><td>First milestone: screen dashboard only</td></tr>
+      <tr><td>Purple wire on P3 <code>IO35</code></td><td>Purple wire on rear header <code>GP1</code></td></tr>
+      <tr><td>Red wire on CYD P3/CN1 power</td><td>Red wire on rear header <code>3V3</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Wire Your PulseSensor</h2>
+  <p>The Waveshare board exposes a rear <strong>2 x 8 female header</strong>. Use the printed labels on the board, not cable colors from any other kit.</p>
+
+  <div class="rlcd-screens">
+    <figure>
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_RLCD/main/docs/wiring/back-header-line-art-gp1.svg" alt="Line art of Waveshare rear header with GP1 highlighted for the purple PulseSensor signal wire" />
+      <figcaption>Purple signal wire goes to lower-row <code>GP1</code></figcaption>
+    </figure>
+    <figure>
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_RLCD/main/docs/wiring/pulsesensor-rlcd-schematic.svg" alt="Schematic showing PulseSensor red to 3V3, black to GND, purple to GPIO1 ADC1_CH0" />
+      <figcaption>Three-wire schematic</figcaption>
+    </figure>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>PulseSensor Wire</th><th>Waveshare Rear Header Connection</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong style="color:#E63946;">Red</strong> (+V)</td><td><code>3V3</code></td></tr>
+      <tr><td><strong>Black</strong> (GND)</td><td><code>GND</code></td></tr>
+      <tr><td><strong style="color:#6F35B5;">Purple</strong> (Signal)</td><td><code>GP1</code> / <code>GPIO1</code> / <code>ADC1_CH0</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="rlcd-note"><strong>Important:</strong> Use <code>3V3</code>, not <code>VBUS</code>. The firmware reads the PulseSensor signal from <code>GPIO1</code>, so the purple wire must go to the lower-row <code>GP1</code> socket.</div>
+
+  <h2>What You'll See</h2>
+  <p>After flashing and wiring, hold the PulseSensor gently against a fingertip or earlobe. The RLCD dashboard shows the same signal state as the CYD firmware, simplified for monochrome.</p>
+
+  <ul>
+    <li><code>SIGNAL SEARCH</code> while the firmware looks for clean beats.</li>
+    <li><code>QUALIFIED BEAT</code> once the quality meter locks.</li>
+    <li>A live scrolling waveform across the center of the 400 x 300 display.</li>
+    <li>Lower panels for <strong>BPM</strong>, <strong>IBI</strong>, and <strong>SIG GPIO1</strong>.</li>
+    <li>A pulsing heart in the header when qualified beats arrive.</li>
+    <li>Monochrome light/dark mode toggle with the board's <code>KEY/GPIO18</code> button.</li>
+  </ul>
+
+  <h2>Features</h2>
+  <div class="rlcd-features">
+    <div class="f"><strong>Reflective display.</strong> The 400 x 300 ST7305 RLCD is readable without a backlight and works well for black-and-white line art.</div>
+    <div class="f"><strong>Small firmware.</strong> This is a focused prototype, not a full CYD app port.</div>
+    <div class="f"><strong>Signal-first loop.</strong> <code>readPulseSensor()</code> remains the first meaningful foreground call.</div>
+    <div class="f"><strong>Known pinout.</strong> Display pins are <code>SCK=11</code>, <code>MOSI=12</code>, <code>DC=5</code>, <code>CS=40</code>, <code>RST=41</code>.</div>
+    <div class="f"><strong>ADC1 signal.</strong> PulseSensor signal uses <code>GPIO1 / ADC1_CH0</code> on the rear header.</div>
+    <div class="f"><strong>Monochrome modes.</strong> Use <code>KEY/GPIO18</code> to switch between light and dark display modes.</div>
+  </div>
+
+  <h2>PulseSensor Playground Tie-Ins</h2>
+  <p>Every reading on the display comes from the <a href="https://pulsesensor.com/pages/installing-our-playground-for-pulsesensor-arduino">PulseSensor Playground</a> library, just like the CYD version.</p>
+
+  <table>
+    <thead>
+      <tr><th>What you see on screen</th><th>Playground call behind it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Live waveform</td><td><code>getLatestSample()</code></td></tr>
+      <tr><td>Beat event / heart pulse</td><td><code>sawStartOfBeat()</code></td></tr>
+      <tr><td>Inside-beat state</td><td><code>isInsideBeat()</code></td></tr>
+      <tr><td>BPM number</td><td><code>getBeatsPerMinute()</code></td></tr>
+      <tr><td>IBI number</td><td><code>getInterBeatIntervalMs()</code></td></tr>
+      <tr><td>Amplitude meter</td><td><code>getPulseAmplitude()</code></td></tr>
+      <tr><td>Dotted threshold line</td><td><code>setThreshold(550)</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="rlcd-warn">
+    <strong>Success looks like:</strong>
+    <ul style="margin:8px 0 0;">
+      <li><strong>Smooth waveform.</strong> Clear peaks matching your heartbeat.</li>
+      <li><strong>BPM stabilizes.</strong> A real reading usually settles after a few clean beats.</li>
+      <li><strong>Quality rises.</strong> The signal meter fills as the waveform becomes usable.</li>
+      <li><strong>Header changes.</strong> <code>SIGNAL SEARCH</code> becomes <code>QUALIFIED BEAT</code>.</li>
+    </ul>
+  </div>
+
+  <h2>Quick Troubleshooting</h2>
+  <table>
+    <thead>
+      <tr><th>Problem</th><th>Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Install button does nothing</td><td>Use Chrome, Edge, or Brave on a desktop or laptop. Mobile browsers do not support WebSerial yet.</td></tr>
+      <tr><td>No serial port appears</td><td>Use a data-capable USB-C cable and plug directly into the computer.</td></tr>
+      <tr><td>Screen stays blank</td><td>Confirm this is the Waveshare ESP32-S3-RLCD-4.2. This firmware is for the ST7305 RLCD pins listed below.</td></tr>
+      <tr><td>Flat or clipped waveform</td><td>Confirm purple is on <code>GP1</code>, red is on <code>3V3</code>, and black is on <code>GND</code>. Do not use <code>VBUS</code> for sensor power.</td></tr>
+      <tr><td>BPM stays 0</td><td>Hold the sensor with gentle, steady pressure and give it a few clean beats. Try an earlobe if fingertip readings are jumpy.</td></tr>
+      <tr><td>Display mode is hard to read</td><td>Tap the board's <code>KEY/GPIO18</code> button to switch monochrome light/dark mode.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Get The Source / Get A Sensor</h2>
+  <div class="rlcd-cards">
+    <div class="card">
+      <h3>The Source Code</h3>
+      <p>This version is a standalone PlatformIO Arduino/C++ project for the Waveshare RLCD board.</p>
+      <p><a href="https://github.com/WorldFamousElectronics/PulseSensor_RLCD"><strong>github.com/WorldFamousElectronics/PulseSensor_RLCD</strong></a></p>
+      <p>MIT licensed. This is the first known-working RLCD milestone.</p>
+    </div>
+    <div class="card">
+      <h3>Need a PulseSensor?</h3>
+      <p>The PulseSensor Kit ships with a Stabilizer Ring, color-coded cable, ear clip, finger strap, and vinyl insulation dots.</p>
+      <p><a href="https://pulsesensor.com/products/pulse-sensor-amped"><strong>Get the Kit</strong></a></p>
+    </div>
+  </div>
+
+  <details>
+    <summary>Hardware details and pinout</summary>
+    <p>The firmware targets the Waveshare ESP32-S3-RLCD-4.2 board with ESP32-S3, 16 MB flash, 8 MB PSRAM, and ST7305 reflective LCD.</p>
+    <pre><code>PULSE_PIN       = 1
+RLCD_SCK        = 11
+RLCD_MOSI       = 12
+RLCD_DC         = 5
+RLCD_CS         = 40
+RLCD_RST        = 41
+BUTTON_BOOT     = 0
+BUTTON_KEY      = 18</code></pre>
+    <p>PulseSensor Playground expects 10-bit samples, so the firmware calls <code>analogReadResolution(10)</code> during startup.</p>
+  </details>
+
+  <p>This software is an educational biofeedback demo and is not intended for medical use.</p>
+  <p>Made by World Famous Electronics. Source on GitHub. MIT licensed. Heartbeats in your project, lickety-split.</p>
+</div>

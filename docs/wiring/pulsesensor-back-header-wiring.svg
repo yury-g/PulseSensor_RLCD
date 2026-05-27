@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">PulseSensor wiring to Waveshare ESP32-S3-RLCD-4.2 rear female header</title>
+  <desc id="desc">Back header pinout showing PulseSensor red wire to 3V3, black wire to GND, and purple signal wire to GPIO1 ADC1_CH0.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f7f2; }
+      .ink { fill: #111; stroke: #111; }
+      .line { stroke: #111; stroke-width: 3; fill: none; }
+      .thin { stroke: #111; stroke-width: 2; fill: none; }
+      .pin { fill: #fff; stroke: #111; stroke-width: 3; }
+      .pin-hot { fill: #eaf4ff; stroke: #111; stroke-width: 4; }
+      .pin-power { fill: #ffe5e5; stroke: #111; stroke-width: 4; }
+      .pin-ground { fill: #e8e8e8; stroke: #111; stroke-width: 4; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 26px; font-weight: 700; fill: #111; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 19px; font-weight: 600; fill: #111; }
+      .tiny { font-family: Arial, Helvetica, sans-serif; font-size: 16px; fill: #111; }
+      .wire-red { stroke: #d52222; stroke-width: 10; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .wire-black { stroke: #111; stroke-width: 10; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .wire-purple { stroke: #7845b8; stroke-width: 10; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .callout { fill: #fff; stroke: #111; stroke-width: 3; }
+      .sensor { fill: #fff; stroke: #111; stroke-width: 4; }
+      .accent { fill: #111; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="760"/>
+
+  <text class="label" x="60" y="58">Waveshare ESP32-S3-RLCD-4.2 rear female header wiring</text>
+  <text class="small" x="60" y="92">View this as the back-side 2x8 female header from the Waveshare pin definition. Use the left-column ADC pins for PulseSensor signal.</text>
+
+  <g transform="translate(470 138)">
+    <rect x="-116" y="-52" width="352" height="570" rx="22" fill="#fff" stroke="#111" stroke-width="4"/>
+    <text class="small" x="-92" y="-18">Back 2x8 female header</text>
+    <text class="tiny" x="-82" y="10">top edge of board above</text>
+
+    <g id="left-pins">
+      <rect class="pin-power" x="-72" y="42" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="72">3V3</text>
+
+      <rect class="pin-ground" x="-72" y="98" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="128">GND</text>
+
+      <rect class="pin" x="-72" y="154" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="184">GPIO0</text>
+
+      <rect class="pin-hot" x="-72" y="210" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="240">GPIO1</text>
+      <text class="tiny" x="-158" y="239">ADC1_CH0</text>
+
+      <rect class="pin" x="-72" y="266" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="296">GPIO2</text>
+      <text class="tiny" x="-158" y="295">ADC1_CH1</text>
+
+      <rect class="pin" x="-72" y="322" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="352">GPIO3</text>
+      <text class="tiny" x="-158" y="351">ADC1_CH2</text>
+
+      <rect class="pin" x="-72" y="378" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="408">GPIO17</text>
+      <text class="tiny" x="-164" y="407">ADC2_CH6</text>
+
+      <rect class="pin" x="-72" y="434" width="124" height="46" rx="5"/>
+      <text class="small" x="-52" y="464">GPIO18</text>
+      <text class="tiny" x="-164" y="463">ADC2_CH7</text>
+    </g>
+
+    <g id="right-pins">
+      <rect class="pin" x="84" y="42" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="72">VBUS</text>
+
+      <rect class="pin-ground" x="84" y="98" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="128">GND</text>
+
+      <rect class="pin" x="84" y="154" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="184">GPIO19</text>
+      <text class="tiny" x="222" y="183">USB_DN</text>
+
+      <rect class="pin" x="84" y="210" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="240">GPIO20</text>
+      <text class="tiny" x="222" y="239">USB_DP</text>
+
+      <rect class="pin" x="84" y="266" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="296">GPIO43</text>
+      <text class="tiny" x="222" y="295">TXD</text>
+
+      <rect class="pin" x="84" y="322" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="352">GPIO44</text>
+      <text class="tiny" x="222" y="351">RXD</text>
+
+      <rect class="pin" x="84" y="378" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="408">GPIO13</text>
+      <text class="tiny" x="222" y="407">I2C_SDA</text>
+
+      <rect class="pin" x="84" y="434" width="124" height="46" rx="5"/>
+      <text class="small" x="104" y="464">GPIO14</text>
+      <text class="tiny" x="222" y="463">I2C_SCL</text>
+    </g>
+  </g>
+
+  <g transform="translate(80 186)">
+    <rect class="sensor" x="0" y="0" width="250" height="318" rx="20"/>
+    <text class="label" x="28" y="48">PulseSensor</text>
+    <text class="small" x="28" y="84">Amped / Playground</text>
+    <circle cx="126" cy="168" r="54" fill="#fff" stroke="#111" stroke-width="4"/>
+    <circle cx="126" cy="168" r="22" fill="#111"/>
+
+    <rect x="28" y="246" width="24" height="24" fill="#d52222" stroke="#111" stroke-width="2"/>
+    <text class="small" x="64" y="267">RED  VCC</text>
+    <rect x="28" y="276" width="24" height="24" fill="#111" stroke="#111" stroke-width="2"/>
+    <text class="small" x="64" y="297">BLACK GND</text>
+    <rect x="28" y="306" width="24" height="24" fill="#7845b8" stroke="#111" stroke-width="2"/>
+    <text class="small" x="64" y="327">PURPLE SIGNAL</text>
+  </g>
+
+  <path class="wire-red" d="M332 432 C390 348 424 254 398 203 C384 174 374 171 398 203"/>
+  <path class="wire-red" d="M330 432 C405 352 427 216 398 203 L418 203"/>
+  <text class="small" x="82" y="552" fill="#d52222">RED wire: 3V3 only</text>
+
+  <path class="wire-black" d="M332 462 C410 398 416 294 398 259 L418 259"/>
+  <text class="small" x="82" y="586">BLACK wire: GND</text>
+
+  <path class="wire-purple" d="M332 492 C410 478 430 382 398 371 L418 371"/>
+  <text class="small" x="82" y="620" fill="#7845b8">PURPLE wire: GPIO1 / ADC1_CH0</text>
+
+  <g transform="translate(820 178)">
+    <rect class="callout" x="0" y="0" width="318" height="228" rx="14"/>
+    <text class="label" x="24" y="44">Connect these 3 pins</text>
+    <line class="thin" x1="24" y1="66" x2="294" y2="66"/>
+    <text class="small" x="24" y="106">PulseSensor RED -> 3V3</text>
+    <text class="small" x="24" y="144">PulseSensor BLACK -> GND</text>
+    <text class="small" x="24" y="182">PulseSensor PURPLE -> GPIO1</text>
+    <text class="tiny" x="24" y="210">Firmware currently uses -DPULSE_PIN=1</text>
+  </g>
+
+  <g transform="translate(820 458)">
+    <rect class="callout" x="0" y="0" width="318" height="138" rx="14"/>
+    <text class="small" x="24" y="42">Do not use VBUS for signal.</text>
+    <text class="small" x="24" y="78">Use 3V3 so the analog output</text>
+    <text class="small" x="24" y="112">stays safe for ESP32-S3 ADC.</text>
+  </g>
+
+  <text class="tiny" x="60" y="720">Source: Waveshare ESP32-S3-RLCD-4.2 pin definition image. Header shown as the rear female connector, not the LCD flex/display pins.</text>
+</svg>

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="850" viewBox="0 0 1400 850" role="img" aria-labelledby="title desc">
+  <title id="title">Block diagram for PulseSensor and Waveshare ESP32-S3-RLCD-4.2 dashboard</title>
+  <desc id="desc">Block diagram showing PulseSensor power, ground, and analog signal into ESP32-S3 GPIO1 ADC, processed by PulseSensor Playground and rendered to the ST7305 RLCD dashboard.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto">
+      <path d="M 0 0 L 14 7 L 0 14 z" fill="#111"/>
+    </marker>
+    <style>
+      .bg { fill: #fbfbf6; }
+      .block { fill: #fff; stroke: #111; stroke-width: 4; }
+      .soft { fill: #f1f5f9; stroke: #111; stroke-width: 4; }
+      .sensor { fill: #fff7f7; stroke: #111; stroke-width: 4; }
+      .display { fill: #f4fff3; stroke: #111; stroke-width: 4; }
+      .wire-red { stroke: #d52222; stroke-width: 8; fill: none; stroke-linecap: round; marker-end: url(#arrow); }
+      .wire-black { stroke: #111; stroke-width: 8; fill: none; stroke-linecap: round; marker-end: url(#arrow); }
+      .wire-purple { stroke: #7845b8; stroke-width: 8; fill: none; stroke-linecap: round; marker-end: url(#arrow); }
+      .flow { stroke: #111; stroke-width: 5; fill: none; stroke-linecap: round; marker-end: url(#arrow); }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #111; }
+      .sub { font-family: Arial, Helvetica, sans-serif; font-size: 21px; font-weight: 600; fill: #111; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 18px; fill: #111; }
+      .tiny { font-family: Arial, Helvetica, sans-serif; font-size: 15px; fill: #111; }
+      .net { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; fill: #111; }
+      .redtext { fill: #b91515; }
+      .purpletext { fill: #6332a0; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1400" height="850"/>
+  <text class="label" x="60" y="64">Block diagram: PulseSensor live dashboard on RLCD</text>
+  <text class="sub" x="60" y="100">This is the signal path from the sensor wires to the monochrome ST7305 display.</text>
+
+  <g transform="translate(70 180)">
+    <rect class="sensor" x="0" y="0" width="260" height="240" rx="18"/>
+    <text class="label" x="30" y="52">PulseSensor</text>
+    <text class="small" x="30" y="88">Optical PPG sensor</text>
+    <circle cx="132" cy="146" r="46" fill="#fff" stroke="#111" stroke-width="4"/>
+    <circle cx="132" cy="146" r="18" fill="#111"/>
+    <text class="tiny" x="42" y="216">Outputs analog pulse waveform</text>
+  </g>
+
+  <g transform="translate(450 122)">
+    <rect class="block" x="0" y="0" width="250" height="355" rx="18"/>
+    <text class="label" x="28" y="52">Rear header</text>
+    <text class="small" x="28" y="86">2x8 female connector</text>
+    <rect x="32" y="124" width="184" height="48" rx="6" fill="#ffe3e3" stroke="#111" stroke-width="3"/>
+    <text class="net redtext" x="58" y="155">3V3</text>
+    <rect x="32" y="188" width="184" height="48" rx="6" fill="#e9e9e9" stroke="#111" stroke-width="3"/>
+    <text class="net" x="58" y="219">GND</text>
+    <rect x="32" y="252" width="184" height="48" rx="6" fill="#e9f3ff" stroke="#111" stroke-width="3"/>
+    <text class="net purpletext" x="58" y="283">GPIO1 / ADC1_CH0</text>
+  </g>
+
+  <g transform="translate(825 122)">
+    <rect class="soft" x="0" y="0" width="260" height="355" rx="18"/>
+    <text class="label" x="32" y="52">ESP32-S3</text>
+    <text class="small" x="32" y="86">Arduino firmware</text>
+    <rect x="34" y="124" width="192" height="54" rx="8" fill="#fff" stroke="#111" stroke-width="3"/>
+    <text class="net" x="54" y="157">ADC read GPIO1</text>
+    <rect x="34" y="206" width="192" height="54" rx="8" fill="#fff" stroke="#111" stroke-width="3"/>
+    <text class="net" x="54" y="239">readPulseSensor()</text>
+    <rect x="34" y="288" width="192" height="54" rx="8" fill="#fff" stroke="#111" stroke-width="3"/>
+    <text class="net" x="54" y="321">Beat decision</text>
+  </g>
+
+  <g transform="translate(1160 180)">
+    <rect class="display" x="0" y="0" width="180" height="240" rx="18"/>
+    <text class="label" x="28" y="52">RLCD</text>
+    <text class="small" x="28" y="88">ST7305</text>
+    <rect x="28" y="116" width="124" height="72" fill="#fff" stroke="#111" stroke-width="3"/>
+    <path d="M 36 154 C 58 126, 82 178, 106 150 S 142 160, 152 134" stroke="#111" stroke-width="4" fill="none"/>
+    <text class="tiny" x="30" y="216">400 x 300 mono</text>
+  </g>
+
+  <path class="wire-red" d="M330 250 C380 222 402 250 450 270"/>
+  <text class="net redtext" x="330" y="220">red VCC -> 3V3</text>
+
+  <path class="wire-black" d="M330 300 C380 294 402 318 450 334"/>
+  <text class="net" x="330" y="338">black GND -> GND</text>
+
+  <path class="wire-purple" d="M330 355 C380 388 402 390 450 398"/>
+  <text class="net purpletext" x="330" y="422">purple SIGNAL -> GPIO1</text>
+
+  <path class="flow" d="M700 274 H825"/>
+  <text class="small" x="720" y="252">analog 0V..3.3V</text>
+
+  <path class="flow" d="M1085 300 H1160"/>
+  <text class="small" x="1092" y="278">dashboard pixels</text>
+
+  <g transform="translate(172 560)">
+    <rect class="block" x="0" y="0" width="1056" height="156" rx="18"/>
+    <text class="label" x="30" y="48">What the firmware does</text>
+    <text class="small" x="30" y="86">1. PulseSensorPlayground samples GPIO1 at interrupt timing.</text>
+    <text class="small" x="30" y="116">2. readPulseSensor() runs first in loop(), preserving the existing beat detection behavior.</text>
+    <text class="small" x="30" y="146">3. The RLCD backend redraws a black/white BPM, IBI, signal quality, and waveform dashboard.</text>
+  </g>
+
+  <text class="small" x="60" y="790">Use 3V3, GND, and GPIO1 / ADC1_CH0 on the back female header. Do not power the sensor from VBUS for this wiring.</text>
+</svg>

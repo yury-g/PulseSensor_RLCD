@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Line-art Waveshare rear header showing GP1 PulseSensor signal pin</title>
+  <desc id="desc">Line-art drawing of the Waveshare ESP32-S3-RLCD-4.2 rear 2x8 header. The purple PulseSensor signal cable connects to bottom row GP1.</desc>
+  <defs>
+    <marker id="arrowPurple" markerWidth="18" markerHeight="18" refX="15" refY="9" orient="auto">
+      <path d="M 0 0 L 18 9 L 0 18 z" fill="#6f35b5"/>
+    </marker>
+    <style>
+      .bg { fill: #fafaf4; }
+      .ink { stroke: #111; fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+      .thin { stroke: #111; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+      .pin { fill: #fff; stroke: #111; stroke-width: 4; }
+      .pin-target { fill: #efe5ff; stroke: #6f35b5; stroke-width: 7; }
+      .text { font-family: Arial, Helvetica, sans-serif; fill: #111; }
+      .title { font-size: 34px; font-weight: 700; }
+      .label { font-size: 24px; font-weight: 700; }
+      .small { font-size: 18px; font-weight: 600; }
+      .tiny { font-size: 15px; }
+      .purple { fill: #6f35b5; }
+      .wire { stroke: #6f35b5; fill: none; stroke-width: 12; stroke-linecap: round; marker-end: url(#arrowPurple); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="760"/>
+
+  <text class="text title" x="56" y="62">Back header line art: PulseSensor purple signal wire</text>
+  <text class="text small" x="56" y="96">Use the lower socket labeled GP1. In the current firmware this is GPIO1 / ADC1_CH0.</text>
+
+  <g transform="translate(208 170)">
+    <text class="text label" x="328" y="-62">Waveshare rear 2x8 female header</text>
+    <text class="text tiny" x="392" y="-34">same orientation as your photo</text>
+
+    <rect class="ink" x="54" y="116" width="792" height="146" rx="12"/>
+    <line class="thin" x1="54" y1="189" x2="846" y2="189"/>
+
+    <g id="top-labels" class="text label">
+      <text transform="translate(98 88) rotate(-90)">VBUS</text>
+      <text transform="translate(198 88) rotate(-90)">GND</text>
+      <text transform="translate(298 88) rotate(-90)">GP19</text>
+      <text transform="translate(398 88) rotate(-90)">GP20</text>
+      <text transform="translate(498 88) rotate(-90)">TXD</text>
+      <text transform="translate(598 88) rotate(-90)">RXD</text>
+      <text transform="translate(698 88) rotate(-90)">SDA</text>
+      <text transform="translate(798 88) rotate(-90)">SCL</text>
+    </g>
+
+    <g id="bottom-labels" class="text label">
+      <text transform="translate(98 424) rotate(-90)">3V3</text>
+      <text transform="translate(198 424) rotate(-90)">GND</text>
+      <text transform="translate(298 424) rotate(-90)">GP0</text>
+      <text transform="translate(398 424) rotate(-90)" class="purple">GP1</text>
+      <text transform="translate(498 424) rotate(-90)">GP2</text>
+      <text transform="translate(598 424) rotate(-90)">GP3</text>
+      <text transform="translate(698 424) rotate(-90)">GP17</text>
+      <text transform="translate(798 424) rotate(-90)">GP18</text>
+    </g>
+
+    <g id="pins">
+      <rect class="pin" x="75" y="134" width="50" height="50" rx="7"/>
+      <rect class="pin" x="175" y="134" width="50" height="50" rx="7"/>
+      <rect class="pin" x="275" y="134" width="50" height="50" rx="7"/>
+      <rect class="pin" x="375" y="134" width="50" height="50" rx="7"/>
+      <rect class="pin" x="475" y="134" width="50" height="50" rx="7"/>
+      <rect class="pin" x="575" y="134" width="50" height="50" rx="7"/>
+      <rect class="pin" x="675" y="134" width="50" height="50" rx="7"/>
+      <rect class="pin" x="775" y="134" width="50" height="50" rx="7"/>
+
+      <rect class="pin" x="75" y="194" width="50" height="50" rx="7"/>
+      <rect class="pin" x="175" y="194" width="50" height="50" rx="7"/>
+      <rect class="pin" x="275" y="194" width="50" height="50" rx="7"/>
+      <rect class="pin-target" x="375" y="194" width="50" height="50" rx="7"/>
+      <rect class="pin" x="475" y="194" width="50" height="50" rx="7"/>
+      <rect class="pin" x="575" y="194" width="50" height="50" rx="7"/>
+      <rect class="pin" x="675" y="194" width="50" height="50" rx="7"/>
+      <rect class="pin" x="775" y="194" width="50" height="50" rx="7"/>
+    </g>
+
+    <path class="wire" d="M400 540 C410 455 402 325 400 252"/>
+    <text class="text title purple" x="462" y="536">Purple PulseSensor signal wire</text>
+    <text class="text label purple" x="462" y="574">connects to GP1 / GPIO1 / ADC1_CH0</text>
+
+    <g transform="translate(-136 504)">
+      <rect x="0" y="0" width="280" height="130" rx="14" fill="#fff" stroke="#111" stroke-width="4"/>
+      <text class="text label" x="22" y="40">Other two wires</text>
+      <text class="text small" x="22" y="76">Red -> 3V3</text>
+      <text class="text small" x="22" y="108">Black -> GND</text>
+    </g>
+  </g>
+
+  <text class="text small" x="56" y="712">Answer: plug the purple PulseSensor cable into the lower-row GP1 socket. That is the 4th lower pin from the left in this photo orientation.</text>
+</svg>

@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900" role="img" aria-labelledby="title desc">
+  <title id="title">Schematic wiring for PulseSensor to Waveshare ESP32-S3-RLCD-4.2</title>
+  <desc id="desc">Electrical schematic style drawing showing PulseSensor VCC to 3V3, GND to GND, and signal to GPIO1 ADC1_CH0 on the Waveshare ESP32-S3-RLCD-4.2 rear female header.</desc>
+  <defs>
+    <style>
+      .bg { fill: #fbfbf6; }
+      .box { fill: #fff; stroke: #111; stroke-width: 4; }
+      .pin { fill: #fff; stroke: #111; stroke-width: 3; }
+      .hot { fill: #e9f3ff; stroke: #111; stroke-width: 4; }
+      .power { fill: #ffe3e3; stroke: #111; stroke-width: 4; }
+      .ground { fill: #e9e9e9; stroke: #111; stroke-width: 4; }
+      .wire-red { stroke: #d52222; stroke-width: 8; fill: none; stroke-linecap: round; }
+      .wire-black { stroke: #111; stroke-width: 8; fill: none; stroke-linecap: round; }
+      .wire-purple { stroke: #7845b8; stroke-width: 8; fill: none; stroke-linecap: round; }
+      .line { stroke: #111; stroke-width: 3; fill: none; stroke-linecap: round; }
+      .thin { stroke: #111; stroke-width: 2; fill: none; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 30px; font-weight: 700; fill: #111; }
+      .sub { font-family: Arial, Helvetica, sans-serif; font-size: 21px; font-weight: 600; fill: #111; }
+      .small { font-family: Arial, Helvetica, sans-serif; font-size: 18px; fill: #111; }
+      .net { font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; fill: #111; }
+      .redtext { fill: #b91515; }
+      .purpletext { fill: #6332a0; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="900"/>
+
+  <text class="label" x="64" y="64">Schematic: PulseSensor to Waveshare ESP32-S3-RLCD-4.2</text>
+  <text class="sub" x="64" y="100">Use the rear 2x8 female header. Firmware is currently built with PULSE_PIN = GPIO1.</text>
+
+  <g id="pulsesensor" transform="translate(92 214)">
+    <rect class="box" x="0" y="0" width="330" height="340" rx="14"/>
+    <text class="label" x="34" y="54">PulseSensor</text>
+    <text class="sub" x="34" y="88">3-wire analog sensor</text>
+
+    <circle cx="165" cy="174" r="60" fill="#fff" stroke="#111" stroke-width="4"/>
+    <circle cx="165" cy="174" r="24" fill="#111"/>
+    <text class="small" x="82" y="267">Pin / wire colors</text>
+
+    <rect class="power" x="34" y="288" width="34" height="26" rx="3"/>
+    <text class="net redtext" x="82" y="309">VCC / red</text>
+    <rect class="ground" x="34" y="322" width="34" height="26" rx="3"/>
+    <text class="net" x="82" y="343">GND / black</text>
+    <rect class="hot" x="34" y="356" width="34" height="26" rx="3"/>
+    <text class="net purpletext" x="82" y="377">SIGNAL / purple</text>
+
+    <line class="wire-red" x1="330" y1="301" x2="442" y2="301"/>
+    <line class="wire-black" x1="330" y1="335" x2="442" y2="335"/>
+    <line class="wire-purple" x1="330" y1="369" x2="442" y2="369"/>
+  </g>
+
+  <g id="connector" transform="translate(560 158)">
+    <rect class="box" x="0" y="0" width="412" height="528" rx="14"/>
+    <text class="label" x="28" y="52">J1 rear female header</text>
+    <text class="small" x="28" y="84">Board back view, 2x8 expansion header</text>
+
+    <g transform="translate(40 122)">
+      <rect class="power" x="0" y="0" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="28">3V3</text>
+      <rect class="ground" x="0" y="54" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="82">GND</text>
+      <rect class="pin" x="0" y="108" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="136">GPIO0</text>
+      <rect class="hot" x="0" y="162" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="190">GPIO1</text>
+      <text class="small" x="-94" y="190">ADC1_CH0</text>
+      <rect class="pin" x="0" y="216" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="244">GPIO2</text>
+      <text class="small" x="-94" y="244">ADC1_CH1</text>
+      <rect class="pin" x="0" y="270" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="298">GPIO3</text>
+      <text class="small" x="-94" y="298">ADC1_CH2</text>
+      <rect class="pin" x="0" y="324" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="352">GPIO17</text>
+      <text class="small" x="-102" y="352">ADC2_CH6</text>
+      <rect class="pin" x="0" y="378" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="406">GPIO18</text>
+      <text class="small" x="-102" y="406">ADC2_CH7</text>
+    </g>
+
+    <g transform="translate(222 122)">
+      <rect class="pin" x="0" y="0" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="28">VBUS</text>
+      <rect class="ground" x="0" y="54" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="82">GND</text>
+      <rect class="pin" x="0" y="108" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="136">GPIO19</text>
+      <rect class="pin" x="0" y="162" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="190">GPIO20</text>
+      <rect class="pin" x="0" y="216" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="244">GPIO43</text>
+      <rect class="pin" x="0" y="270" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="298">GPIO44</text>
+      <rect class="pin" x="0" y="324" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="352">GPIO13</text>
+      <rect class="pin" x="0" y="378" width="150" height="42" rx="4"/>
+      <text class="net" x="20" y="406">GPIO14</text>
+    </g>
+  </g>
+
+  <path class="wire-red" d="M534 515 H560"/>
+  <path class="wire-red" d="M422 515 C486 515 498 280 560 280"/>
+  <text class="net redtext" x="998" y="244">NET_3V3: PulseSensor VCC</text>
+
+  <path class="wire-black" d="M422 549 C492 549 496 334 560 334"/>
+  <text class="net" x="998" y="296">NET_GND: common ground</text>
+
+  <path class="wire-purple" d="M422 583 C510 583 488 442 560 442"/>
+  <text class="net purpletext" x="998" y="350">PULSE_SIG: GPIO1 / ADC1_CH0</text>
+
+  <g transform="translate(1000 390)">
+    <rect class="box" x="0" y="0" width="310" height="174" rx="12"/>
+    <text class="sub" x="22" y="42">Electrical notes</text>
+    <line class="thin" x1="22" y1="60" x2="288" y2="60"/>
+    <text class="small" x="22" y="92">Power sensor from 3V3, not VBUS.</text>
+    <text class="small" x="22" y="124">Signal must stay between 0V and 3.3V.</text>
+    <text class="small" x="22" y="156">GPIO1 is ADC1_CH0 on ESP32-S3.</text>
+  </g>
+
+  <g transform="translate(1000 604)">
+    <rect class="box" x="0" y="0" width="310" height="116" rx="12"/>
+    <text class="sub" x="22" y="42">Firmware setting</text>
+    <text class="small" x="22" y="78">platformio.ini:</text>
+    <text class="net purpletext" x="130" y="78">-DPULSE_PIN=1</text>
+  </g>
+
+  <text class="small" x="64" y="824">Connection summary: red -> 3V3, black -> GND, purple -> GPIO1 / ADC1_CH0.</text>
+  <text class="small" x="64" y="856">Source: Waveshare ESP32-S3-RLCD-4.2 documentation and official pin definition image.</text>
+</svg>
