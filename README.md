@@ -4,6 +4,8 @@ Known-working PulseSensor dashboard for the Waveshare ESP32-S3-RLCD-4.2.
 
 This repo is the small, device-specific branch of the PulseSensor CYD work. It keeps the proven beat-detection behavior from `0.4.41-snappy-lock`, but targets the 400 x 300 monochrome ST7305 reflective LCD instead of the CYD color TFT.
 
+GitHub repo: <https://github.com/yury-g/PulseSensor_RLCD>
+
 ## Known Working State
 
 - Board: Waveshare ESP32-S3-RLCD-4.2
@@ -70,6 +72,8 @@ The Shopify-style page mock for this device is in:
 - [docs/shopify/page-waveshare-rlcd.html](docs/shopify/page-waveshare-rlcd.html)
 
 Use it as the first draft for a future `pulsesensor.com/pages/waveshare-rlcd` tutorial page.
+
+This repo also includes `manifest.json`, `index.html`, and `firmware/` artifacts for an ESP Web Tools installer once GitHub Pages is enabled.
 
 ## License
 

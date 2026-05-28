@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PulseSensor RLCD Dashboard - Web Installer</title>
+<meta name="description" content="One-click browser installer for the PulseSensor dashboard on the Waveshare ESP32-S3-RLCD-4.2." />
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #fafaf4;
+    color: #202020;
+    min-height: 100vh;
+    padding: 32px 18px;
+    line-height: 1.6;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  h1 { margin: 0 0 8px; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.1; }
+  h2 { font-size: 1.4rem; margin: 0 0 12px; }
+  p { margin: 8px 0 14px; color: #444; }
+  code { background: #f0ece2; padding: 2px 6px; border-radius: 4px; }
+  .tag {
+    display: inline-block;
+    background: #202020;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .panel {
+    border: 1px solid #ded8ca;
+    border-radius: 8px;
+    background: #fff;
+    padding: 22px;
+    margin: 18px 0;
+  }
+  .install {
+    border: 2px solid #202020;
+    background: #fffdf7;
+    text-align: center;
+  }
+  esp-web-install-button {
+    --esp-tools-button-background: #202020;
+    --esp-tools-button-color: #ffffff;
+    --esp-tools-button-border-radius: 6px;
+  }
+  .activate-btn {
+    appearance: none;
+    border: 0;
+    border-radius: 6px;
+    background: #202020;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 14px 26px;
+    cursor: pointer;
+  }
+  .unsupported { display: block; color: #a15c00; margin-top: 12px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ded8ca; }
+  th { background: #fffdf7; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">Known Working</span>
+  <h1>PulseSensor RLCD Dashboard</h1>
+  <p>Browser installer for the Waveshare ESP32-S3-RLCD-4.2 monochrome PulseSensor dashboard.</p>
+
+  <section class="panel install">
+    <h2>Install Firmware</h2>
+    <esp-web-install-button manifest="manifest.json">
+      <button slot="activate" class="activate-btn">Install PulseSensor RLCD</button>
+      <span slot="unsupported" class="unsupported">Open this page in Chrome, Edge, or Brave on a desktop or laptop.</span>
+      <span slot="not-allowed" class="unsupported">WebSerial is blocked. Make sure the page is loaded over HTTPS.</span>
+    </esp-web-install-button>
+  </section>
+
+  <section class="panel">
+    <h2>Wiring</h2>
+    <table>
+      <thead>
+        <tr><th>PulseSensor wire</th><th>Waveshare rear header</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Red / VCC</td><td><code>3V3</code></td></tr>
+        <tr><td>Black / GND</td><td><code>GND</code></td></tr>
+        <tr><td>Purple / Signal</td><td><code>GP1</code> / <code>GPIO1</code> / <code>ADC1_CH0</code></td></tr>
+      </tbody>
+    </table>
+    <p>Do not power the PulseSensor from <code>VBUS</code>. Use <code>3V3</code>.</p>
+  </section>
+</main>
+</body>
+</html>

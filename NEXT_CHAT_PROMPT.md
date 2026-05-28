@@ -4,6 +4,10 @@ We have a known-working Waveshare ESP32-S3-RLCD-4.2 PulseSensor firmware in:
 
 `/Users/narwhal2/Documents/Codex-CYD/PulseSensor_RLCD`
 
+GitHub repo:
+
+`https://github.com/yury-g/PulseSensor_RLCD`
+
 The hardware was tested working on May 27, 2026. The PulseSensor is wired to the rear female header:
 
 - Red wire -> `3V3`
