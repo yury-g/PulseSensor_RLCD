@@ -37,6 +37,7 @@ See:
 - [Line art GP1 header](docs/wiring/back-header-line-art-gp1.svg)
 - [Schematic wiring](docs/wiring/pulsesensor-rlcd-schematic.svg)
 - [Block diagram](docs/wiring/pulsesensor-rlcd-block-diagram.svg)
+- [Rendered RLCD dashboard hero](docs/screenshots/rlcd-dashboard-hero.svg)
 
 ## Build And Flash
 

@@ -85,6 +85,8 @@ static constexpr int IBI_PANEL_X = 142;
 static constexpr int SIGNAL_PANEL_X = 270;
 static constexpr int METRIC_PANEL_W = 116;
 static constexpr int SIGNAL_PANEL_W = 116;
+static constexpr int LABEL_TEXT_SIZE = 2;
+static constexpr int GRAPH_LABEL_TEXT_SIZE = 2;
 
 enum SignalCoachState {
   COACH_SIGNAL_SEARCH,
@@ -255,6 +257,7 @@ void drawQualitySegments(int x, int y);
 void drawAmplitudeMeter(int x, int y, int amplitude);
 void drawBeatHeart(int centerX, int centerY);
 void fillHeartShape(int centerX, int centerY, int size, uint16_t color);
+void drawBoldText(const char* text, int x, int y, int textSize, uint16_t color, uint16_t bg);
 void drawCenteredText(const char* text, int x, int y, int w, int textSize, uint16_t color, uint16_t bg);
 void drawDottedHLine(int x, int y, int w, uint16_t color, int step);
 void drawDottedVLine(int x, int y, int h, uint16_t color, int step);
@@ -895,19 +898,14 @@ void drawHeader() {
   uint16_t fg = textColor();
 
   display.setTextColor(fg, bg);
-  display.setTextSize(2);
-  display.setCursor(14, 12);
-  display.print("PulseSensor.com");
+  drawBoldText("PulseSensor.com", 14, 10, 2, fg, bg);
 
   display.setTextSize(1);
   display.setCursor(17, 34);
   display.print(APP_VERSION);
 
-  display.setTextSize(1);
-  display.setCursor(286, 14);
-  display.print(lockedSignal ? "LOCK" : "SEARCH");
-  display.setCursor(286, 28);
-  display.print(displayModeName());
+  drawBoldText(lockedSignal ? "LOCK" : "SEARCH", 286, 10, LABEL_TEXT_SIZE, fg, bg);
+  drawBoldText(displayModeName(), 286, 31, LABEL_TEXT_SIZE, fg, bg);
 
   drawBeatHeart(226, 26);
 }
@@ -931,21 +929,25 @@ void drawGraphFrame() {
     display.drawFastVLine(GRAPH_LEFT + x, thresholdY - 1, 3, fg);
   }
 
-  display.setTextSize(1);
   display.setTextColor(fg, bg);
-  display.setCursor(GRAPH_LEFT + 8, GRAPH_TOP + 7);
-  display.print("LIVE LINE");
-  display.setCursor(GRAPH_LEFT + GRAPH_WIDTH - 54, GRAPH_TOP + 7);
-  display.print("THR ");
-  display.print(activePulseThreshold);
+  drawBoldText("LIVE", GRAPH_LEFT + 8, GRAPH_TOP + 7, GRAPH_LABEL_TEXT_SIZE, fg, bg);
+
+  char thresholdText[12];
+  snprintf(thresholdText, sizeof(thresholdText), "THR%d", activePulseThreshold);
+  int thresholdW = strlen(thresholdText) * 6 * GRAPH_LABEL_TEXT_SIZE;
+  drawBoldText(thresholdText,
+               GRAPH_LEFT + GRAPH_WIDTH - thresholdW - 8,
+               GRAPH_TOP + 7,
+               GRAPH_LABEL_TEXT_SIZE,
+               fg,
+               bg);
 
   const char* status = signalCoachText();
-  int statusW = strlen(status) * 6;
+  int statusW = strlen(status) * 6 * GRAPH_LABEL_TEXT_SIZE;
   int statusX = GRAPH_LEFT + GRAPH_WIDTH - statusW - 10;
-  int statusY = GRAPH_TOP + GRAPH_HEIGHT - 15;
-  display.fillRect(statusX - 3, statusY - 1, statusW + 6, 11, bg);
-  display.setCursor(statusX, statusY);
-  display.print(status);
+  int statusY = GRAPH_TOP + GRAPH_HEIGHT - 22;
+  display.fillRect(statusX - 4, statusY - 2, statusW + 8, 20, bg);
+  drawBoldText(status, statusX, statusY, GRAPH_LABEL_TEXT_SIZE, fg, bg);
 }
 
 void drawWaveformHistory() {
@@ -998,27 +1000,23 @@ void drawMetricPanel(int x, int y, int w, int h, const char* label, int value, c
   }
 
   display.setTextColor(fg, bg);
-  display.setTextSize(1);
-  display.setCursor(x + 10, y + 10);
-  display.print(label);
+  drawBoldText(label, x + 10, y + 8, LABEL_TEXT_SIZE, fg, bg);
 
   char valueText[8];
   if (valid) {
-    snprintf(valueText, sizeof(valueText), "%3d", value);
+    snprintf(valueText, sizeof(valueText), "%d", value);
   } else {
     snprintf(valueText, sizeof(valueText), "--");
   }
 
   int valueSize = strcmp(label, "IBI") == 0 ? 4 : 5;
-  int valueY = strcmp(label, "IBI") == 0 ? y + 31 : y + 26;
-  display.setTextSize(valueSize);
-  display.setCursor(x + 9, valueY);
-  display.print(valueText);
+  int valueY = strcmp(label, "IBI") == 0 ? y + 34 : y + 28;
+  int valueW = strlen(valueText) * 6 * valueSize;
+  int valueX = x + max(7, (w - valueW) / 2);
+  drawBoldText(valueText, valueX, valueY, valueSize, fg, bg);
 
   if (valid && unit[0] != '\0') {
-    display.setTextSize(1);
-    display.setCursor(x + w - 26, y + h - 18);
-    display.print(unit);
+    drawBoldText(unit, x + w - 25, y + 10, 1, fg, bg);
   }
 }
 
@@ -1035,11 +1033,11 @@ void drawSignalPanel() {
   }
 
   display.setTextColor(fg, bg);
-  display.setTextSize(1);
-  display.setCursor(SIGNAL_PANEL_X + 10, PANEL_Y + 10);
-  display.printf("SIG GPIO%d", PULSE_PIN);
-  drawQualitySegments(SIGNAL_PANEL_X + 10, PANEL_Y + 31);
-  drawAmplitudeMeter(SIGNAL_PANEL_X + 10, PANEL_Y + 54, pulseAmplitude);
+  char signalLabel[12];
+  snprintf(signalLabel, sizeof(signalLabel), "SIG GP%d", PULSE_PIN);
+  drawBoldText(signalLabel, SIGNAL_PANEL_X + 8, PANEL_Y + 8, LABEL_TEXT_SIZE, fg, bg);
+  drawQualitySegments(SIGNAL_PANEL_X + 10, PANEL_Y + 34);
+  drawAmplitudeMeter(SIGNAL_PANEL_X + 10, PANEL_Y + 58, pulseAmplitude);
 }
 
 void drawQualitySegments(int x, int y) {
@@ -1047,7 +1045,7 @@ void drawQualitySegments(int x, int y) {
   for (int i = 0; i < SIGNAL_QUALITY_STEPS; i++) {
     int bx = x + i * 8;
     if (i < signalQuality) {
-      display.fillRect(bx, y, 5, 13, fg);
+      display.fillRect(bx, y, 6, 16, fg);
     }
   }
 }
@@ -1063,10 +1061,9 @@ void drawAmplitudeMeter(int x, int y, int amplitude) {
       display.drawRect(bx, y, 3, 7, inactiveColor());
     }
   }
-  display.setTextSize(1);
-  display.setTextColor(textColor(), panelBgColor());
-  display.setCursor(x + 56, y);
-  display.printf("A%03d", constrain(amplitude, 0, 999));
+  char amplitudeText[8];
+  snprintf(amplitudeText, sizeof(amplitudeText), "A%03d", constrain(amplitude, 0, 999));
+  drawBoldText(amplitudeText, x + 57, y - 5, LABEL_TEXT_SIZE, textColor(), panelBgColor());
 }
 
 void drawBeatHeart(int centerX, int centerY) {
@@ -1088,6 +1085,17 @@ void fillHeartShape(int centerX, int centerY, int size, uint16_t color) {
   display.fillTriangle(centerX - size, centerY - size / 4,
                        centerX + size, centerY - size / 4,
                        centerX, centerY + size, color);
+}
+
+void drawBoldText(const char* text, int x, int y, int textSize, uint16_t color, uint16_t bg) {
+  display.setTextSize(textSize);
+  display.setTextColor(color, bg);
+  display.setCursor(x, y);
+  display.print(text);
+  display.setTextColor(color);
+  display.setCursor(x + 1, y);
+  display.print(text);
+  display.setTextColor(color, bg);
 }
 
 void drawCenteredText(const char* text, int x, int y, int w, int textSize, uint16_t color, uint16_t bg) {

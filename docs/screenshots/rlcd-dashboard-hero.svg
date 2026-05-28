@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Rendered Waveshare RLCD PulseSensor dashboard screenshot</title>
+  <desc id="desc">A large rendered mock of the 400 by 300 monochrome RLCD dashboard with big readable labels, waveform, BPM, IBI, and signal panels.</desc>
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity="0.22"/>
+    </filter>
+    <style>
+      .page { fill: #f7f7f2; }
+      .screen { fill: #fbfbf6; stroke: #111; stroke-width: 10; }
+      .ink { fill: #111; }
+      .stroke { fill: none; stroke: #111; stroke-linecap: round; stroke-linejoin: round; }
+      .mono { font-family: "Courier New", ui-monospace, monospace; font-weight: 900; fill: #111; letter-spacing: 0; }
+      .label { font-size: 18px; }
+      .small { font-size: 14px; }
+      .tiny { font-size: 10px; font-weight: 900; }
+      .value { font-size: 64px; }
+      .value-small { font-size: 50px; }
+    </style>
+  </defs>
+
+  <rect class="page" width="1200" height="900"/>
+  <g transform="translate(88 76)" filter="url(#shadow)">
+    <rect x="0" y="0" width="1024" height="748" rx="44" fill="#e5e0d6" stroke="#111" stroke-width="8"/>
+    <rect x="64" y="64" width="896" height="620" rx="18" fill="#fbfbf6" stroke="#111" stroke-width="8"/>
+    <text class="mono small" x="90" y="38">Waveshare ESP32-S3-RLCD-4.2</text>
+
+    <g transform="translate(104 84) scale(2.0)">
+      <rect class="screen" x="0" y="0" width="400" height="300" rx="8"/>
+
+      <text class="mono label" x="14" y="34">PulseSensor.com</text>
+      <path class="ink" d="M230 24 C223 9 198 11 199 35 C199 49 217 63 230 76 C243 63 261 49 261 35 C262 11 237 9 230 24 Z"/>
+      <text class="mono small" x="292" y="29">LOCK</text>
+      <text class="mono small" x="292" y="53">M LIGHT</text>
+
+      <rect class="stroke" x="14" y="58" width="372" height="128" rx="5" stroke-width="4"/>
+      <path class="stroke" d="M60 58 V186 M106 58 V186 M152 58 V186 M198 58 V186 M244 58 V186 M290 58 V186 M336 58 V186" stroke-width="1.5" stroke-dasharray="1 7"/>
+      <path class="stroke" d="M14 90 H386 M14 122 H386 M14 154 H386" stroke-width="1.5" stroke-dasharray="1 7"/>
+      <path class="stroke" d="M14 110 H386" stroke-width="2" stroke-dasharray="3 6"/>
+      <text class="mono small" x="22" y="82">LIVE</text>
+      <text class="mono small" x="292" y="82">THR550</text>
+      <path class="stroke" d="M18 138 C34 132 44 118 59 125 C73 132 80 162 96 164 C111 166 121 137 137 111 C151 89 164 83 180 106 C194 126 202 160 218 164 C235 168 244 143 260 114 C273 91 286 83 302 103 C315 121 326 153 341 158 C356 163 365 139 383 126" stroke-width="5"/>
+      <circle class="ink" cx="137" cy="111" r="8"/>
+      <circle class="ink" cx="260" cy="114" r="8"/>
+      <text class="mono small" x="214" y="178">QUALIFIED BEAT</text>
+
+      <g transform="translate(14 204)">
+        <rect class="stroke" x="0" y="0" width="116" height="78" rx="6" stroke-width="4"/>
+        <text class="mono small" x="10" y="23">BPM</text>
+        <text class="mono value" x="8" y="75">72</text>
+      </g>
+
+      <g transform="translate(142 204)">
+        <rect class="stroke" x="0" y="0" width="116" height="78" rx="6" stroke-width="4"/>
+        <text class="mono small" x="10" y="23">IBI</text>
+        <text class="mono value-small" x="8" y="72">833</text>
+        <text class="mono tiny" x="88" y="72">ms</text>
+      </g>
+
+      <g transform="translate(270 204)">
+        <rect class="stroke" x="0" y="0" width="116" height="78" rx="6" stroke-width="4"/>
+        <text class="mono small" x="8" y="23">SIG GP1</text>
+        <g transform="translate(10 34)">
+          <rect class="ink" x="0" y="0" width="6" height="17"/>
+          <rect class="ink" x="9" y="0" width="6" height="17"/>
+          <rect class="ink" x="18" y="0" width="6" height="17"/>
+          <rect class="ink" x="27" y="0" width="6" height="17"/>
+          <rect class="ink" x="36" y="0" width="6" height="17"/>
+          <rect class="ink" x="45" y="0" width="6" height="17"/>
+          <rect class="ink" x="54" y="0" width="6" height="17"/>
+          <rect class="ink" x="63" y="0" width="6" height="17"/>
+          <rect class="ink" x="72" y="0" width="6" height="17"/>
+          <rect class="ink" x="81" y="0" width="6" height="17"/>
+        </g>
+        <text class="mono small" x="10" y="71">A420</text>
+      </g>
+    </g>
+  </g>
+</svg>
