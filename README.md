@@ -13,10 +13,13 @@ GitHub repo: <https://github.com/yury-g/PulseSensor_RLCD>
 - Display: ST7305 400 x 300 monochrome reflective LCD
 - Display pins: `SCK=11`, `MOSI=12`, `DC=5`, `CS=40`, `RST=41`
 - PulseSensor signal: rear female header `GP1` / `GPIO1` / `ADC1_CH0`
+- Battery monitor: ADC1 channel 3, displayed as voltage and mapped percentage
+- Environment monitor: onboard SHTC3, displayed as device temperature in Fahrenheit and humidity
 - Buttons known on board: `BOOT/GPIO0`, `KEY/GPIO18`
-- Serial/upload port used during validation: `/dev/cu.usbmodem2101`
-- Firmware version string: `0.4.41-snappy-lock-rlcd`
-- Hardware result: flashed and confirmed working on the RLCD device on May 27, 2026.
+- Serial/upload port used during Mini Narwhal validation: `/dev/cu.usbmodem31101`
+- Firmware version string: `0.4.42-battery-runtime-rlcd`
+- Hardware result: flashed and confirmed working on the RLCD device on June 8, 2026.
+- Validated serial telemetry: `battery=3.91V 81% adc=1611 tempF=81.4 humidity=30.8`
 
 ## Wiring
 
@@ -38,19 +41,22 @@ See:
 - [Schematic wiring](docs/wiring/pulsesensor-rlcd-schematic.svg)
 - [Block diagram](docs/wiring/pulsesensor-rlcd-block-diagram.svg)
 - [Rendered RLCD dashboard hero](docs/screenshots/rlcd-dashboard-hero.svg)
+- [Versioned 0.4.42 build screenshot](docs/screenshots/rlcd-dashboard-0.4.42-battery-runtime-rlcd.svg)
 
 ## Build And Flash
 
 ```sh
-/Users/narwhal2/.platformio/penv/bin/platformio run -e waveshare_rlcd42
-/Users/narwhal2/.platformio/penv/bin/platformio run -e waveshare_rlcd42 -t upload
+platformio run -e waveshare_rlcd42
+platformio run -e waveshare_rlcd42 -t upload
 ```
 
 Serial monitor:
 
 ```sh
-/Users/narwhal2/.platformio/penv/bin/platformio device monitor -p /dev/cu.usbmodem2101 -b 115200
+platformio device monitor -p /dev/cu.usbmodem31101 -b 115200
 ```
+
+If PlatformIO is not on `PATH`, use the local PlatformIO executable for the machine you are developing on.
 
 ## Signal Behavior
 
@@ -65,6 +71,8 @@ The foreground loop keeps `readPulseSensor()` as the first meaningful call after
 - `getInterBeatIntervalMs()`
 - `getPulseAmplitude()`
 - dynamic threshold re-arm behavior from the CYD `0.4.41-snappy-lock` favorite
+
+Battery runtime telemetry samples ADC1 channel 3 every two seconds. The read is wrapped in a short interrupt guard so it does not race the PulseSensor sampler on ADC1.
 
 ## Web Page Draft
 
