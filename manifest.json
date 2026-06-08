@@ -1,6 +1,6 @@
 {
   "name": "PulseSensor RLCD Dashboard",
-  "version": "0.4.41-snappy-lock-rlcd",
+  "version": "0.4.43-rlcd",
   "new_install_prompt_erase": true,
   "builds": [
     {

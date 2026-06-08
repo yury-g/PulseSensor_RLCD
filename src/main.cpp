@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <esp_arduino_version.h>
+#include <Wire.h>
 
 // PulseSensorPlayground owns the 500 Hz ESP32 sampler. Keep foreground UI work
 // after readPulseSensor() so the detector always gets serviced first.
@@ -9,7 +10,7 @@
 #include "rlcd_st7305.h"
 
 #ifndef APP_VERSION
-#define APP_VERSION "0.4.41-snappy-lock-rlcd"
+#define APP_VERSION "0.4.43-rlcd"
 #endif
 
 #ifndef PULSE_PIN
@@ -67,6 +68,20 @@
 
 static constexpr int PIN_BOOT = 0;
 static constexpr int PIN_KEY = 18;
+static constexpr int PIN_BATTERY_ADC = 4;
+static constexpr float BATTERY_ADC_SCALE = 3.0f;
+static constexpr float BATTERY_EMPTY_VOLTAGE = 3.0f;
+static constexpr float BATTERY_FULL_VOLTAGE = 4.12f;
+static constexpr int PIN_I2C_SDA = 13;
+static constexpr int PIN_I2C_SCL = 14;
+static constexpr uint8_t BATTERY_GAUGE_ADDR = 0x55;
+static constexpr uint8_t BATTERY_SOC_REG = 0x2C;
+static constexpr unsigned long BATTERY_SAMPLE_MS = 5000;
+static constexpr uint8_t SHTC3_ADDR = 0x70;
+static constexpr uint16_t SHTC3_WAKEUP = 0x3517;
+static constexpr uint16_t SHTC3_SLEEP = 0xB098;
+static constexpr uint16_t SHTC3_MEASURE_T_RH = 0x7866;
+static constexpr unsigned long ENVIRONMENT_SAMPLE_MS = 5000;
 static constexpr int HEART_MIN_SIZE = 9;
 static constexpr int HEART_MAX_SIZE = 18;
 static constexpr int LED_PEAK_HOLD_MS = 90;
@@ -75,15 +90,17 @@ static constexpr int DASHBOARD_DRAW_MS = 80;
 static constexpr int WAVEFORM_SAMPLE_MS = 20;
 
 static constexpr int GRAPH_LEFT = 14;
-static constexpr int GRAPH_TOP = 58;
+static constexpr int GRAPH_TOP = 46;
 static constexpr int GRAPH_WIDTH = 372;
-static constexpr int GRAPH_HEIGHT = 128;
-static constexpr int PANEL_Y = 204;
-static constexpr int PANEL_H = 78;
+static constexpr int GRAPH_HEIGHT = 138;
+static constexpr int SIGNAL_STRIP_Y = 190;
+static constexpr int SIGNAL_STRIP_H = 20;
+static constexpr int PANEL_Y = 218;
+static constexpr int PANEL_H = 66;
 static constexpr int BPM_PANEL_X = 14;
-static constexpr int IBI_PANEL_X = 142;
-static constexpr int SIGNAL_PANEL_X = 270;
-static constexpr int METRIC_PANEL_W = 116;
+static constexpr int IBI_PANEL_X = 210;
+static constexpr int SIGNAL_PANEL_X = 274;
+static constexpr int METRIC_PANEL_W = 176;
 static constexpr int SIGNAL_PANEL_W = 116;
 static constexpr int LABEL_TEXT_SIZE = 2;
 static constexpr int GRAPH_LABEL_TEXT_SIZE = 2;
@@ -172,10 +189,28 @@ struct DashboardState {
   bool waveformBeatMarkerPendingAccepted = false;
 };
 
+struct BatteryState {
+  bool ready = false;
+  int percent = -1;
+  float voltage = 0.0f;
+  int rawAdc = 0;
+  unsigned long lastSample = 0;
+};
+
+struct EnvironmentState {
+  bool ready = false;
+  int temperatureF = 0;
+  int humidityPercent = 0;
+  unsigned long lastSample = 0;
+};
+
 RlcdSt7305 display;
 PulseSensorPlayground pulseSensor;
 PulseSignalState pulseState;
 DashboardState dashboard;
+BatteryState batteryState;
+EnvironmentState environmentState;
+bool batteryAdcReady = false;
 
 int& currentSignal = pulseState.currentSignal;
 int& displayBPM = pulseState.displayBPM;
@@ -208,6 +243,16 @@ bool& rawDiagnosticsBeatPending = pulseState.rawDiagnosticsBeatPending;
 const char*& rawDiagnosticsBeatAcceptReason = pulseState.rawDiagnosticsBeatAcceptReason;
 
 void setupPulseSensor();
+void setupBatteryGauge();
+void setupBatteryAdc();
+void updateBatteryStatus();
+bool readBatteryRegisterWord(uint8_t reg, uint16_t& value);
+bool readBatteryAdcVoltage(float& voltage, int& rawAdc);
+int batteryPercentFromVoltage(float voltage);
+void updateEnvironmentStatus();
+bool readShtc3(float& temperatureC, float& humidity);
+bool sendI2cCommand(uint8_t address, uint16_t command);
+bool shtc3CrcOk(const uint8_t* data, uint8_t checksum);
 void drawPulseSensorInitErrorScreen();
 void readPulseSensor();
 void printRawSignalDiagnostics();
@@ -248,9 +293,12 @@ void resetDashboardState();
 void drawDashboardIfDue();
 void drawDashboard();
 void drawHeader();
+void drawBatteryStatus();
+void drawEnvironmentStatus();
 void drawGraphFrame();
 void drawWaveformHistory();
 void drawPanels();
+void drawSignalStrip();
 void drawMetricPanel(int x, int y, int w, int h, const char* label, int value, const char* unit, bool valid);
 void drawSignalPanel();
 void drawQualitySegments(int x, int y);
@@ -291,6 +339,7 @@ void setup() {
   }
 
   resetDashboardState();
+  setupBatteryGauge();
   setupPulseSensor();
   drawDashboardIfDue();
 }
@@ -306,11 +355,175 @@ void loop() {
   readPulseSensor();
 
   captureWaveformSample();
+  updateBatteryStatus();
+  updateEnvironmentStatus();
   readButtons();
   updateBeatPulse();
   drawDashboardIfDue();
   printRawSignalDiagnostics();
   maybePrintSerialStatus();
+}
+
+void setupBatteryGauge() {
+  Wire.begin(PIN_I2C_SDA, PIN_I2C_SCL);
+  Wire.setClock(400000);
+  setupBatteryAdc();
+  updateBatteryStatus();
+  updateEnvironmentStatus();
+}
+
+void setupBatteryAdc() {
+  analogSetPinAttenuation(PIN_BATTERY_ADC, ADC_11db);
+  batteryAdcReady = true;
+}
+
+void updateBatteryStatus() {
+  unsigned long now = millis();
+  if (batteryState.lastSample != 0 && now - batteryState.lastSample < BATTERY_SAMPLE_MS) return;
+  batteryState.lastSample = now;
+
+  uint16_t stateOfCharge = 0;
+  if (readBatteryRegisterWord(BATTERY_SOC_REG, stateOfCharge) && stateOfCharge <= 100) {
+    int nextPercent = constrain(static_cast<int>(stateOfCharge), 0, 100);
+    if (!batteryState.ready || nextPercent != batteryState.percent || batteryState.voltage != 0.0f) {
+      dashboard.needsRedraw = true;
+    }
+    batteryState.ready = true;
+    batteryState.percent = nextPercent;
+    batteryState.voltage = 0.0f;
+    batteryState.rawAdc = 0;
+    Serial.printf("Battery gauge: %d%%\n", batteryState.percent);
+    return;
+  }
+
+  float adcVoltage = 0.0f;
+  int rawAdc = 0;
+  if (readBatteryAdcVoltage(adcVoltage, rawAdc)) {
+    int nextPercent = batteryPercentFromVoltage(adcVoltage);
+    if (!batteryState.ready ||
+        nextPercent != batteryState.percent ||
+        abs(static_cast<int>((adcVoltage - batteryState.voltage) * 100.0f)) >= 2) {
+      dashboard.needsRedraw = true;
+      Serial.printf("Battery ADC: raw=%d voltage=%.2fV level=%d%%\n", rawAdc, adcVoltage, nextPercent);
+    }
+    batteryState.ready = true;
+    batteryState.percent = nextPercent;
+    batteryState.voltage = adcVoltage;
+    batteryState.rawAdc = rawAdc;
+    return;
+  }
+
+  if (batteryState.ready || batteryState.percent != -1) {
+    dashboard.needsRedraw = true;
+  }
+  batteryState.ready = false;
+  batteryState.percent = -1;
+}
+
+bool readBatteryRegisterWord(uint8_t reg, uint16_t& value) {
+  Wire.beginTransmission(BATTERY_GAUGE_ADDR);
+  Wire.write(reg);
+  if (Wire.endTransmission(false) != 0) return false;
+  if (Wire.requestFrom(BATTERY_GAUGE_ADDR, static_cast<uint8_t>(2)) != 2) return false;
+
+  uint8_t low = Wire.read();
+  uint8_t high = Wire.read();
+  value = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8);
+  return true;
+}
+
+bool readBatteryAdcVoltage(float& voltage, int& rawAdc) {
+  if (!batteryAdcReady) return false;
+
+  int raw = analogRead(PIN_BATTERY_ADC);
+  int millivolts = analogReadMilliVolts(PIN_BATTERY_ADC);
+  if (millivolts > 0) {
+    voltage = 0.001f * static_cast<float>(millivolts) * BATTERY_ADC_SCALE;
+  } else {
+    int maxRaw = (1 << 10) - 1;
+    voltage = (static_cast<float>(raw) / static_cast<float>(maxRaw)) * 3.3f * BATTERY_ADC_SCALE;
+  }
+
+  rawAdc = raw;
+  return voltage >= 0.05f && voltage <= 5.2f;
+}
+
+int batteryPercentFromVoltage(float voltage) {
+  if (voltage <= BATTERY_EMPTY_VOLTAGE) return 0;
+  if (voltage >= BATTERY_FULL_VOLTAGE) return 100;
+  float level = ((voltage - BATTERY_EMPTY_VOLTAGE) / (BATTERY_FULL_VOLTAGE - BATTERY_EMPTY_VOLTAGE)) * 100.0f;
+  return constrain(static_cast<int>(roundf(level)), 0, 100);
+}
+
+void updateEnvironmentStatus() {
+  unsigned long now = millis();
+  if (environmentState.lastSample != 0 && now - environmentState.lastSample < ENVIRONMENT_SAMPLE_MS) return;
+  environmentState.lastSample = now;
+
+  float temperatureC = 0.0f;
+  float humidity = 0.0f;
+  if (readShtc3(temperatureC, humidity)) {
+    int nextTempF = static_cast<int>(roundf((temperatureC * 9.0f / 5.0f) + 32.0f));
+    int nextHumidity = constrain(static_cast<int>(roundf(humidity)), 0, 100);
+    if (!environmentState.ready ||
+        nextTempF != environmentState.temperatureF ||
+        nextHumidity != environmentState.humidityPercent) {
+      dashboard.needsRedraw = true;
+    }
+    environmentState.ready = true;
+    environmentState.temperatureF = nextTempF;
+    environmentState.humidityPercent = nextHumidity;
+    return;
+  }
+
+  if (environmentState.ready) {
+    dashboard.needsRedraw = true;
+  }
+  environmentState.ready = false;
+}
+
+bool readShtc3(float& temperatureC, float& humidity) {
+  if (!sendI2cCommand(SHTC3_ADDR, SHTC3_WAKEUP)) return false;
+  delay(2);
+  if (!sendI2cCommand(SHTC3_ADDR, SHTC3_MEASURE_T_RH)) return false;
+  delay(20);
+
+  if (Wire.requestFrom(SHTC3_ADDR, static_cast<uint8_t>(6)) != 6) {
+    sendI2cCommand(SHTC3_ADDR, SHTC3_SLEEP);
+    return false;
+  }
+
+  uint8_t bytes[6];
+  for (uint8_t i = 0; i < sizeof(bytes); i++) {
+    bytes[i] = Wire.read();
+  }
+  sendI2cCommand(SHTC3_ADDR, SHTC3_SLEEP);
+
+  if (!shtc3CrcOk(bytes, bytes[2]) || !shtc3CrcOk(&bytes[3], bytes[5])) return false;
+
+  uint16_t rawTemp = (static_cast<uint16_t>(bytes[0]) << 8) | bytes[1];
+  uint16_t rawHumidity = (static_cast<uint16_t>(bytes[3]) << 8) | bytes[4];
+  temperatureC = (175.0f * rawTemp / 65536.0f) - 45.0f - 4.0f;
+  humidity = 100.0f * rawHumidity / 65536.0f;
+  return true;
+}
+
+bool sendI2cCommand(uint8_t address, uint16_t command) {
+  Wire.beginTransmission(address);
+  Wire.write(static_cast<uint8_t>(command >> 8));
+  Wire.write(static_cast<uint8_t>(command & 0xFF));
+  return Wire.endTransmission() == 0;
+}
+
+bool shtc3CrcOk(const uint8_t* data, uint8_t checksum) {
+  uint8_t crc = 0xFF;
+  for (uint8_t byteIndex = 0; byteIndex < 2; byteIndex++) {
+    crc ^= data[byteIndex];
+    for (uint8_t bit = 0; bit < 8; bit++) {
+      crc = (crc & 0x80) ? static_cast<uint8_t>((crc << 1) ^ 0x31) : static_cast<uint8_t>(crc << 1);
+    }
+  }
+  return crc == checksum;
 }
 
 void setupPulseSensor() {
@@ -890,6 +1103,7 @@ void drawDashboard() {
   drawHeader();
   drawGraphFrame();
   drawWaveformHistory();
+  drawSignalStrip();
   drawPanels();
 }
 
@@ -897,30 +1111,83 @@ void drawHeader() {
   uint16_t bg = screenBgColor();
   uint16_t fg = textColor();
 
-  display.setTextColor(fg, bg);
-  drawBoldText("PulseSensor.com", 14, 10, 2, fg, bg);
-
+  char statusRow[64];
+  snprintf(statusRow, sizeof(statusRow), "PulseSensor.com | %s", APP_VERSION);
+  display.fillRect(12, 8, 274, 18, bg);
   display.setTextSize(1);
-  display.setCursor(17, 34);
-  display.print(APP_VERSION);
-
-  drawBoldText(lockedSignal ? "LOCK" : "SEARCH", 286, 10, LABEL_TEXT_SIZE, fg, bg);
-  drawBoldText(displayModeName(), 286, 31, LABEL_TEXT_SIZE, fg, bg);
+  display.setTextColor(fg, bg);
+  display.setCursor(14, 13);
+  display.print(statusRow);
+  drawBatteryStatus();
+  drawEnvironmentStatus();
 
   drawBeatHeart(226, 26);
+}
+
+void drawEnvironmentStatus() {
+  uint16_t fg = textColor();
+  uint16_t bg = screenBgColor();
+
+  char envText[24];
+  if (environmentState.ready) {
+    snprintf(envText,
+             sizeof(envText),
+             "DEV TMP %dF  HUM %d%%",
+             environmentState.temperatureF,
+             environmentState.humidityPercent);
+  } else {
+    snprintf(envText, sizeof(envText), "DEV TMP --F  HUM --%%");
+  }
+
+  const int envRight = 386;
+  int envW = strlen(envText) * 6;
+  display.fillRect(236, 27, 152, 11, bg);
+  drawBoldText(envText, envRight - envW, 29, 1, fg, bg);
+}
+
+void drawBatteryStatus() {
+  uint16_t fg = textColor();
+  uint16_t bg = screenBgColor();
+  int percent = batteryState.ready ? batteryState.percent : -1;
+
+  const int iconX = 362;
+  const int iconY = 11;
+  const int iconW = 24;
+  const int iconH = 12;
+  const int nubW = 3;
+
+  display.fillRect(286, iconY - 2, 102, iconH + 4, bg);
+
+  char batteryText[16];
+  if (percent >= 0) {
+    snprintf(batteryText, sizeof(batteryText), "DEV BAT %d%%", percent);
+  } else {
+    snprintf(batteryText, sizeof(batteryText), "DEV BAT --%%");
+  }
+  drawBoldText(batteryText, 286, 13, 1, fg, bg);
+
+  display.drawRect(iconX, iconY, iconW, iconH, fg);
+  display.fillRect(iconX + iconW, iconY + 3, nubW, iconH - 6, fg);
+
+  if (percent >= 0) {
+    int fillW = map(percent, 0, 100, 0, iconW - 4);
+    if (percent > 0 && fillW == 0) fillW = 1;
+    display.fillRect(iconX + 2, iconY + 2, fillW, iconH - 4, fg);
+  } else {
+    display.drawFastHLine(iconX + 5, iconY + iconH / 2, iconW - 10, fg);
+  }
 }
 
 void drawGraphFrame() {
   uint16_t fg = textColor();
   uint16_t bg = screenBgColor();
 
-  display.drawRoundRect(GRAPH_LEFT - 2, GRAPH_TOP - 2, GRAPH_WIDTH + 4, GRAPH_HEIGHT + 4, 6, fg);
-  display.drawRoundRect(GRAPH_LEFT - 1, GRAPH_TOP - 1, GRAPH_WIDTH + 2, GRAPH_HEIGHT + 2, 5, fg);
+  display.drawRect(GRAPH_LEFT - 4, GRAPH_TOP - 6, GRAPH_WIDTH + 8, GRAPH_HEIGHT + 10, fg);
 
-  for (int x = 0; x <= GRAPH_WIDTH; x += 46) {
+  for (int x = 46; x < GRAPH_WIDTH; x += 46) {
     drawDottedVLine(GRAPH_LEFT + x, GRAPH_TOP, GRAPH_HEIGHT, fg, 7);
   }
-  for (int y = 0; y <= GRAPH_HEIGHT; y += 32) {
+  for (int y = 32; y < GRAPH_HEIGHT; y += 32) {
     drawDottedHLine(GRAPH_LEFT, GRAPH_TOP + y, GRAPH_WIDTH, fg, 7);
   }
 
@@ -986,19 +1253,48 @@ void drawWaveformHistory() {
 void drawPanels() {
   drawMetricPanel(BPM_PANEL_X, PANEL_Y, METRIC_PANEL_W, PANEL_H, "BPM", displayBPM, "", lockedSignal);
   drawMetricPanel(IBI_PANEL_X, PANEL_Y, METRIC_PANEL_W, PANEL_H, "IBI", displayIBI, "ms", lockedSignal);
-  drawSignalPanel();
+}
+
+void drawSignalStrip() {
+  uint16_t fg = textColor();
+  uint16_t bg = screenBgColor();
+  uint16_t signalColor = lockedSignal ? signalLockColor() : signalSearchColor();
+
+  display.fillRect(GRAPH_LEFT - 4, SIGNAL_STRIP_Y - 2, GRAPH_WIDTH + 8, SIGNAL_STRIP_H + 4, bg);
+  display.drawRect(GRAPH_LEFT - 4, SIGNAL_STRIP_Y - 2, GRAPH_WIDTH + 8, SIGNAL_STRIP_H + 4, fg);
+
+  char signalText[32];
+  snprintf(signalText,
+           sizeof(signalText),
+           "SIG GP%d | %s | A%03d",
+           PULSE_PIN,
+           lockedSignal ? "LOCK" : "SEARCH",
+           constrain(pulseAmplitude, 0, 999));
+  drawBoldText(signalText, GRAPH_LEFT + 6, SIGNAL_STRIP_Y + 6, 1, fg, bg);
+
+  const int tickCount = 6;
+  const int tickW = 12;
+  const int tickH = 8;
+  const int tickGap = 4;
+  const int ticksW = tickCount * tickW + (tickCount - 1) * tickGap;
+  const int ticksX = GRAPH_LEFT + GRAPH_WIDTH - ticksW - 6;
+  const int ticksY = SIGNAL_STRIP_Y + 6;
+  int activeTicks = constrain((signalQuality + 1) / 2, 0, tickCount);
+  for (int i = 0; i < tickCount; i++) {
+    int x = ticksX + i * (tickW + tickGap);
+    if (i < activeTicks) {
+      display.fillRect(x, ticksY, tickW, tickH, signalColor);
+    } else {
+      display.drawRect(x, ticksY, tickW, tickH, inactiveColor());
+    }
+  }
 }
 
 void drawMetricPanel(int x, int y, int w, int h, const char* label, int value, const char* unit, bool valid) {
   uint16_t fg = textColor();
-  uint16_t bg = panelBgColor();
-  display.fillRoundRect(x, y, w, h, 6, bg);
-  display.drawRoundRect(x, y, w, h, 6, valid ? signalLockColor() : signalSearchColor());
-  display.drawRoundRect(x + 1, y + 1, w - 2, h - 2, 5, valid ? signalLockColor() : signalSearchColor());
-  if (!valid) {
-    display.drawRoundRect(x + 6, y + 6, w - 12, h - 12, 4, inactiveColor());
-  }
+  uint16_t bg = screenBgColor();
 
+  display.drawRect(x, y, w, h, fg);
   display.setTextColor(fg, bg);
   drawBoldText(label, x + 10, y + 8, LABEL_TEXT_SIZE, fg, bg);
 
@@ -1009,35 +1305,32 @@ void drawMetricPanel(int x, int y, int w, int h, const char* label, int value, c
     snprintf(valueText, sizeof(valueText), "--");
   }
 
-  int valueSize = strcmp(label, "IBI") == 0 ? 4 : 5;
-  int valueY = strcmp(label, "IBI") == 0 ? y + 34 : y + 28;
+  int valueSize = strcmp(label, "IBI") == 0 ? 3 : 4;
+  int valueY = strcmp(label, "IBI") == 0 ? y + 31 : y + 25;
   int valueW = strlen(valueText) * 6 * valueSize;
-  int valueX = x + max(7, (w - valueW) / 2);
+  int valueX = x + max(0, (w - valueW) / 2);
   drawBoldText(valueText, valueX, valueY, valueSize, fg, bg);
 
   if (valid && unit[0] != '\0') {
-    drawBoldText(unit, x + w - 25, y + 10, 1, fg, bg);
+    drawBoldText(unit, x + w - 31, y + 10, 1, fg, bg);
   }
 }
 
 void drawSignalPanel() {
   uint16_t fg = textColor();
-  uint16_t bg = panelBgColor();
-  display.fillRoundRect(SIGNAL_PANEL_X, PANEL_Y, SIGNAL_PANEL_W, PANEL_H, 6, bg);
-  display.drawRoundRect(SIGNAL_PANEL_X, PANEL_Y, SIGNAL_PANEL_W, PANEL_H, 6,
-                        lockedSignal ? signalLockColor() : signalSearchColor());
-  display.drawRoundRect(SIGNAL_PANEL_X + 1, PANEL_Y + 1, SIGNAL_PANEL_W - 2, PANEL_H - 2, 5,
-                        lockedSignal ? signalLockColor() : signalSearchColor());
-  if (!lockedSignal) {
-    display.drawRoundRect(SIGNAL_PANEL_X + 6, PANEL_Y + 6, SIGNAL_PANEL_W - 12, PANEL_H - 12, 4, inactiveColor());
-  }
+  uint16_t bg = screenBgColor();
 
   display.setTextColor(fg, bg);
-  char signalLabel[12];
-  snprintf(signalLabel, sizeof(signalLabel), "SIG GP%d", PULSE_PIN);
-  drawBoldText(signalLabel, SIGNAL_PANEL_X + 8, PANEL_Y + 8, LABEL_TEXT_SIZE, fg, bg);
-  drawQualitySegments(SIGNAL_PANEL_X + 10, PANEL_Y + 34);
-  drawAmplitudeMeter(SIGNAL_PANEL_X + 10, PANEL_Y + 58, pulseAmplitude);
+  char signalLabel[24];
+  snprintf(signalLabel,
+           sizeof(signalLabel),
+           "GP%d %s A%03d",
+           PULSE_PIN,
+           lockedSignal ? "LOCK" : "SEARCH",
+           constrain(pulseAmplitude, 0, 999));
+  drawBoldText(signalLabel, SIGNAL_PANEL_X, PANEL_Y + 7, 1, fg, bg);
+  drawQualitySegments(SIGNAL_PANEL_X, PANEL_Y + 32);
+  drawAmplitudeMeter(SIGNAL_PANEL_X, PANEL_Y + 56, pulseAmplitude);
 }
 
 void drawQualitySegments(int x, int y) {
@@ -1061,9 +1354,6 @@ void drawAmplitudeMeter(int x, int y, int amplitude) {
       display.drawRect(bx, y, 3, 7, inactiveColor());
     }
   }
-  char amplitudeText[8];
-  snprintf(amplitudeText, sizeof(amplitudeText), "A%03d", constrain(amplitude, 0, 999));
-  drawBoldText(amplitudeText, x + 57, y - 5, LABEL_TEXT_SIZE, textColor(), panelBgColor());
 }
 
 void drawBeatHeart(int centerX, int centerY) {

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PulseSensor RLCD UI Mockup</title>
+<style>
+  :root {
+    --paper: #eef2f1;
+    --panel: #ffffff;
+    --ink: #111111;
+    --muted: #6b6f76;
+    --line: #d8dedb;
+    --accent: #227a63;
+    --screen-bg: #fbfbf6;
+    --screen-ink: #111111;
+    --screen-muted: #8e9088;
+    --battery-fill: 15px;
+    --scale: 2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: 0;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    min-height: 100vh;
+  }
+
+  .stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    overflow: auto;
+    background:
+      linear-gradient(#dfe6e2 1px, transparent 1px),
+      linear-gradient(90deg, #dfe6e2 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .device {
+    padding: 30px;
+    background: #252a2b;
+    border: 1px solid #111111;
+    border-radius: 8px;
+    box-shadow: 0 22px 42px rgba(19, 28, 30, 0.24);
+  }
+
+  .screen-wrap {
+    width: calc(400px * var(--scale));
+    height: calc(300px * var(--scale));
+  }
+
+  .screen {
+    position: relative;
+    width: 400px;
+    height: 300px;
+    overflow: hidden;
+    transform: scale(var(--scale));
+    transform-origin: top left;
+    background: var(--screen-bg);
+    border: 2px solid var(--screen-ink);
+    color: var(--screen-ink);
+    font-family: "Courier New", ui-monospace, Menlo, Consolas, monospace;
+    font-weight: 900;
+    letter-spacing: 0;
+  }
+
+  .screen.dark {
+    --screen-bg: #10110f;
+    --screen-ink: #f5f4ea;
+    --screen-muted: #6f756b;
+  }
+
+  .screen * {
+    position: absolute;
+  }
+
+  .status-row {
+    left: 14px;
+    top: 10px;
+    width: 225px;
+    height: 16px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .status-row span {
+    position: static;
+  }
+
+  .status-row .brand {
+    font-size: 13px;
+  }
+
+  .status-row .dot {
+    margin: 0 5px;
+  }
+
+  .sig-line {
+    display: flex;
+    gap: 5px;
+    align-items: baseline;
+    width: 220px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .sig-line span {
+    position: static;
+  }
+
+  .heart {
+    left: 186px;
+    top: 29px;
+    width: 28px;
+    height: 25px;
+  }
+
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 22px;
+    background: var(--screen-ink);
+    border-radius: 16px 16px 0 0;
+    top: 0;
+  }
+
+  .heart::before {
+    left: 8px;
+    transform: rotate(-45deg);
+    transform-origin: 0 100%;
+  }
+
+  .heart::after {
+    left: -2px;
+    transform: rotate(45deg);
+    transform-origin: 100% 100%;
+  }
+
+  .battery {
+    right: 14px;
+    top: 8px;
+    display: flex;
+    position: absolute;
+    align-items: center;
+    gap: 5px;
+    height: 18px;
+    font-size: 9px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .battery span {
+    position: static;
+  }
+
+  .battery .label {
+    position: static;
+  }
+
+  .environment {
+    right: 14px;
+    top: 28px;
+    width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: right;
+    font-size: 8px;
+    line-height: 1;
+  }
+
+  .battery .icon {
+    position: relative;
+    width: 27px;
+    height: 14px;
+    border: 1px solid var(--screen-ink);
+  }
+
+  .battery .icon::after {
+    content: "";
+    position: absolute;
+    right: -4px;
+    top: 4px;
+    width: 3px;
+    height: 6px;
+    background: var(--screen-ink);
+  }
+
+  .battery .fill {
+    position: absolute;
+    display: block;
+    left: 2px;
+    top: 2px;
+    height: 8px;
+    width: var(--battery-fill);
+    background: var(--screen-ink);
+  }
+
+  .graph {
+    left: 14px;
+    top: 46px;
+    width: 372px;
+    height: 138px;
+    overflow: hidden;
+  }
+
+  .box-on .graph {
+    left: 12px;
+    top: 42px;
+    width: 376px;
+    height: 146px;
+    border: 2px solid var(--screen-ink);
+    border-radius: 5px;
+  }
+
+  .box-on .grid-v,
+  .box-on .grid-h,
+  .box-on .threshold,
+  .box-on .wave {
+    left: 10px;
+    top: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+  }
+
+  .grid-v,
+  .grid-h,
+  .threshold,
+  .wave {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .grid-v line,
+  .grid-h line {
+    stroke: var(--screen-muted);
+    stroke-width: 1;
+    stroke-dasharray: 1 7;
+  }
+
+  .threshold line {
+    stroke: var(--screen-ink);
+    stroke-width: 1.6;
+    stroke-dasharray: 4 6;
+  }
+
+  .wave path {
+    fill: none;
+    stroke: var(--screen-ink);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .beat-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--screen-ink);
+  }
+
+  .graph-label,
+  .graph-threshold,
+  .graph-coach {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .graph-label {
+    left: 22px;
+    top: 53px;
+  }
+
+  .graph-threshold {
+    right: 22px;
+    top: 53px;
+  }
+
+  .graph-coach {
+    right: 22px;
+    top: 160px;
+    background: var(--screen-bg);
+    padding: 1px 3px;
+  }
+
+  .signal-strip {
+    left: 14px;
+    top: 190px;
+    width: 372px;
+    height: 20px;
+    border-top: 1px solid var(--screen-muted);
+    border-bottom: 1px solid var(--screen-muted);
+    overflow: hidden;
+  }
+
+  .signal-strip .sig-line {
+    left: 0;
+    top: 4px;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  .signal-ticks {
+    right: 0;
+    top: 5px;
+    display: flex;
+    gap: 3px;
+  }
+
+  .signal-ticks i {
+    position: static;
+    display: block;
+    width: 14px;
+    height: 8px;
+    border: 1px solid var(--screen-muted);
+  }
+
+  .signal-ticks i.on {
+    border-color: var(--screen-ink);
+    background: var(--screen-ink);
+  }
+
+  .panel {
+    top: 218px;
+    width: 176px;
+    height: 66px;
+  }
+
+  .box-on .panel {
+    top: 220px;
+    border: 2px solid var(--screen-ink);
+    border-radius: 6px;
+  }
+
+  .panel.bpm { left: 14px; }
+  .panel.ibi { left: 210px; }
+
+  .label {
+    left: 0;
+    top: 0;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .box-on .label { left: 8px; top: 8px; }
+
+  .box-on .value {
+    top: 21px;
+    font-size: 44px;
+  }
+
+  .box-on .value.ibi-value {
+    top: 27px;
+    font-size: 34px;
+  }
+
+  .value {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 18px;
+    font-size: 58px;
+    line-height: 1;
+  }
+
+  .value.ibi-value {
+    top: 25px;
+    font-size: 42px;
+  }
+
+  .unit {
+    right: 2px;
+    top: 1px;
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .box-on .unit { right: 8px; top: 10px; }
+
+  .box-on .signal-strip {
+    top: 188px;
+    height: 26px;
+    border: 2px solid var(--screen-ink);
+    border-radius: 5px;
+  }
+
+  .box-on .signal-strip .sig-line {
+    left: 8px;
+    top: 7px;
+  }
+
+  .box-on .signal-ticks {
+    right: 8px;
+    top: 8px;
+  }
+
+  .quality {
+    left: 0;
+    top: 24px;
+    display: flex;
+    gap: 2px;
+  }
+
+  .box-on .quality { left: 10px; top: 34px; }
+
+  .quality i {
+    position: static;
+    display: block;
+    width: 6px;
+    height: 16px;
+    border: 1px solid var(--screen-muted);
+  }
+
+  .quality i.on {
+    border-color: var(--screen-ink);
+    background: var(--screen-ink);
+  }
+
+  .amp {
+    left: 0;
+    top: 48px;
+    width: 109px;
+    height: 15px;
+  }
+
+  .box-on .amp { left: 10px; top: 58px; }
+
+  .amp-bars {
+    left: 0;
+    top: 3px;
+    display: flex;
+    gap: 2px;
+  }
+
+  .amp-bars i {
+    position: static;
+    display: block;
+    width: 3px;
+    height: 7px;
+    border: 1px solid var(--screen-muted);
+  }
+
+  .amp-bars i.on {
+    border-color: var(--screen-ink);
+    background: var(--screen-ink);
+  }
+
+  .amp-text { display: none; }
+
+  .controls {
+    border-left: 1px solid var(--line);
+    background: var(--panel);
+    padding: 22px;
+    overflow: auto;
+  }
+
+  .controls h1 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  .controls .subhead {
+    margin: 0 0 18px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .group {
+    border-top: 1px solid var(--line);
+    padding: 16px 0 2px;
+  }
+
+  .group-title {
+    margin: 0 0 12px;
+    font-size: 12px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #31413c;
+  }
+
+  .control {
+    margin: 0 0 18px;
+  }
+
+  .control label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 7px;
+    color: #202327;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  .control label span:last-child {
+    color: var(--muted);
+    font-weight: 650;
+  }
+
+  .control input[type="range"],
+  .control select,
+  .control input[type="text"] {
+    width: 100%;
+  }
+
+  .control input[type="range"] {
+    accent-color: var(--accent);
+  }
+
+  .control select,
+  .control input[type="text"] {
+    height: 36px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0 10px;
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  .toggles {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 16px;
+  }
+
+  .toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 34px;
+    font-size: 13px;
+    font-weight: 750;
+  }
+
+  .toggle input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+  }
+
+  .buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .buttons button {
+    min-height: 36px;
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    padding: 0 12px;
+    background: var(--ink);
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 750;
+  }
+
+  .buttons button.secondary {
+    background: #ffffff;
+    color: var(--ink);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    margin-top: 12px;
+    resize: vertical;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px;
+    color: var(--ink);
+    background: #ffffff;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+
+  @media (max-width: 980px) {
+    .app {
+      grid-template-columns: 1fr;
+    }
+
+    .controls {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 760px) {
+    :root { --scale: 1; }
+    .stage { padding: 16px; }
+    .device { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="stage" aria-label="RLCD preview">
+    <div class="device">
+      <div class="screen-wrap">
+        <div id="screen" class="screen box-on">
+          <div class="status-row">
+            <span class="brand">PulseSensor.com</span>
+            <span class="dot">|</span>
+            <span id="version">0.4.43-rlcd</span>
+          </div>
+          <div class="heart" aria-hidden="true"></div>
+          <div id="environmentText" class="environment">DEV TEMP 72F  DEV HUM 45%</div>
+          <div class="battery">
+            <span id="batteryTopText" class="label">DEV BAT 72%</span>
+            <span class="icon"><span class="fill"></span></span>
+          </div>
+
+          <div class="graph">
+            <svg class="grid-v" viewBox="0 0 372 128" preserveAspectRatio="none" aria-hidden="true">
+              <line x1="46" y1="0" x2="46" y2="128"></line>
+              <line x1="92" y1="0" x2="92" y2="128"></line>
+              <line x1="138" y1="0" x2="138" y2="128"></line>
+              <line x1="184" y1="0" x2="184" y2="128"></line>
+              <line x1="230" y1="0" x2="230" y2="128"></line>
+              <line x1="276" y1="0" x2="276" y2="128"></line>
+              <line x1="322" y1="0" x2="322" y2="128"></line>
+            </svg>
+            <svg class="grid-h" viewBox="0 0 372 128" preserveAspectRatio="none" aria-hidden="true">
+              <line x1="0" y1="32" x2="372" y2="32"></line>
+              <line x1="0" y1="64" x2="372" y2="64"></line>
+              <line x1="0" y1="96" x2="372" y2="96"></line>
+            </svg>
+            <svg class="threshold" viewBox="0 0 372 128" preserveAspectRatio="none" aria-hidden="true">
+              <line id="thresholdLine" x1="0" y1="62" x2="372" y2="62"></line>
+            </svg>
+            <svg class="wave" viewBox="0 0 372 128" preserveAspectRatio="none" aria-hidden="true">
+              <path id="wavePath" d=""></path>
+            </svg>
+            <span id="beatOne" class="beat-dot"></span>
+            <span id="beatTwo" class="beat-dot"></span>
+          </div>
+          <div class="graph-label">LIVE</div>
+          <div id="thresholdText" class="graph-threshold">THR550</div>
+          <div id="coachText" class="graph-coach">HOLD STEADY</div>
+
+          <div class="signal-strip">
+            <span class="sig-line">
+              <span>SIG GP1</span>
+              <span>|</span>
+              <span id="stateText">SEARCH</span>
+              <span>|</span>
+              <span id="sigAmplitude">A420</span>
+            </span>
+            <span id="signalTicks" class="signal-ticks"></span>
+          </div>
+
+          <div class="panel bpm">
+            <span class="label">BPM</span>
+            <span id="bpmText" class="value">--</span>
+          </div>
+          <div class="panel ibi">
+            <span class="label">IBI</span>
+            <span id="ibiText" class="value ibi-value">--</span>
+            <span class="unit">ms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="controls" aria-label="Mockup controls">
+    <h1>RLCD UI Mockup</h1>
+    <p class="subhead">Tune the live screen before flashing.</p>
+
+    <div class="group">
+      <h2 class="group-title">View</h2>
+      <div class="toggles">
+        <label class="toggle">Bounding Boxes <input id="boxes" type="checkbox" checked /></label>
+        <label class="toggle">Dark Mode <input id="darkMode" type="checkbox" /></label>
+        <label class="toggle">Locked Signal <input id="locked" type="checkbox" /></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title">Metrics</h2>
+      <div class="control">
+        <label for="bpm"><span>BPM</span><span id="bpmValue">72</span></label>
+        <input id="bpm" type="range" min="40" max="180" value="72" />
+      </div>
+
+      <div class="control">
+        <label for="ibi"><span>IBI</span><span id="ibiValue">833 ms</span></label>
+        <input id="ibi" type="range" min="333" max="1500" value="833" />
+      </div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title">Signal</h2>
+      <div class="control">
+        <label for="quality"><span>Signal Quality</span><span id="qualityValue">8 / 12</span></label>
+        <input id="quality" type="range" min="0" max="12" value="8" />
+      </div>
+
+      <div class="control">
+        <label for="amplitude"><span>Amplitude</span><span id="amplitudeValue">420</span></label>
+        <input id="amplitude" type="range" min="0" max="999" value="420" />
+      </div>
+
+      <div class="control">
+        <label for="threshold"><span>Threshold</span><span id="thresholdValue">550</span></label>
+        <input id="threshold" type="range" min="180" max="900" value="550" />
+      </div>
+
+      <div class="control">
+        <label for="coach"><span>Waveform Message</span><span></span></label>
+        <select id="coach">
+          <option>HOLD STEADY</option>
+          <option>SEARCHING</option>
+          <option>GOOD WAVE</option>
+          <option>LOCKING</option>
+          <option>QUALIFIED BEAT</option>
+          <option>TOO FLAT</option>
+          <option>CLIPPED</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title">Header</h2>
+      <div class="control">
+        <label for="battery"><span>Device Battery</span><span id="batteryValue">72%</span></label>
+        <input id="battery" type="range" min="0" max="100" value="72" />
+      </div>
+
+      <div class="control">
+        <label for="temperature"><span>Device Temperature</span><span id="temperatureValue">72F</span></label>
+        <input id="temperature" type="range" min="40" max="110" value="72" />
+      </div>
+
+      <div class="control">
+        <label for="humidity"><span>Device Humidity</span><span id="humidityValue">45%</span></label>
+        <input id="humidity" type="range" min="0" max="100" value="45" />
+      </div>
+
+      <div class="control">
+        <label for="versionInput"><span>Version Text</span><span></span></label>
+        <input id="versionInput" type="text" value="0.4.43-rlcd" />
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="copyState" type="button">Copy State</button>
+      <button id="reset" class="secondary" type="button">Reset</button>
+    </div>
+
+    <textarea id="stateOutput" readonly aria-label="Mockup state output"></textarea>
+  </aside>
+</main>
+
+<script>
+  const controls = {
+    boxes: document.getElementById("boxes"),
+    darkMode: document.getElementById("darkMode"),
+    locked: document.getElementById("locked"),
+    battery: document.getElementById("battery"),
+    temperature: document.getElementById("temperature"),
+    humidity: document.getElementById("humidity"),
+    bpm: document.getElementById("bpm"),
+    ibi: document.getElementById("ibi"),
+    quality: document.getElementById("quality"),
+    amplitude: document.getElementById("amplitude"),
+    threshold: document.getElementById("threshold"),
+    coach: document.getElementById("coach"),
+    versionInput: document.getElementById("versionInput")
+  };
+
+  const els = {
+    screen: document.getElementById("screen"),
+    batteryValue: document.getElementById("batteryValue"),
+    batteryTopText: document.getElementById("batteryTopText"),
+    environmentText: document.getElementById("environmentText"),
+    temperatureValue: document.getElementById("temperatureValue"),
+    humidityValue: document.getElementById("humidityValue"),
+    bpmText: document.getElementById("bpmText"),
+    bpmValue: document.getElementById("bpmValue"),
+    ibiText: document.getElementById("ibiText"),
+    ibiValue: document.getElementById("ibiValue"),
+    signalTicks: document.getElementById("signalTicks"),
+    qualityValue: document.getElementById("qualityValue"),
+    sigAmplitude: document.getElementById("sigAmplitude"),
+    amplitudeValue: document.getElementById("amplitudeValue"),
+    thresholdLine: document.getElementById("thresholdLine"),
+    thresholdText: document.getElementById("thresholdText"),
+    thresholdValue: document.getElementById("thresholdValue"),
+    coachText: document.getElementById("coachText"),
+    version: document.getElementById("version"),
+    stateText: document.getElementById("stateText"),
+    beatOne: document.getElementById("beatOne"),
+    beatTwo: document.getElementById("beatTwo"),
+    wavePath: document.getElementById("wavePath"),
+    stateOutput: document.getElementById("stateOutput")
+  };
+
+  function pad3(value) {
+    return String(value).padStart(3, "0");
+  }
+
+  function signalToY(value) {
+    const clamped = Math.max(0, Math.min(1023, value));
+    return 128 - Math.round((clamped / 1023) * 128);
+  }
+
+  function buildWave(amplitude) {
+    const points = [];
+    const mid = 70;
+    const scale = Math.max(10, Math.min(58, amplitude / 9));
+    for (let x = 0; x <= 372; x += 12) {
+      const y = mid - Math.sin(x / 20) * scale * 0.62 - Math.sin(x / 9) * scale * 0.22;
+      points.push([x, Math.max(12, Math.min(116, y))]);
+    }
+    return "M " + points.map(([x, y]) => `${x.toFixed(0)} ${y.toFixed(0)}`).join(" L ");
+  }
+
+  function renderBars(container, count, active, className) {
+    container.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const bar = document.createElement("i");
+      if (i < active) bar.className = className;
+      container.appendChild(bar);
+    }
+  }
+
+  function state() {
+    return {
+      boundingBoxes: controls.boxes.checked,
+      darkMode: controls.darkMode.checked,
+      locked: controls.locked.checked,
+      battery: Number(controls.battery.value),
+      temperature: Number(controls.temperature.value),
+      humidity: Number(controls.humidity.value),
+      bpm: Number(controls.bpm.value),
+      ibi: Number(controls.ibi.value),
+      quality: Number(controls.quality.value),
+      amplitude: Number(controls.amplitude.value),
+      threshold: Number(controls.threshold.value),
+      coach: controls.coach.value,
+      version: controls.versionInput.value
+    };
+  }
+
+  function render() {
+    const s = state();
+
+    els.screen.classList.toggle("box-on", s.boundingBoxes);
+    els.screen.classList.toggle("dark", s.darkMode);
+    const batteryFill = s.battery > 0 ? Math.max(1, Math.round(s.battery * 0.21)) : 0;
+    els.screen.style.setProperty("--battery-fill", `${batteryFill}px`);
+
+    els.batteryValue.textContent = `${s.battery}%`;
+    els.batteryTopText.textContent = `DEV BAT ${s.battery}%`;
+    els.temperatureValue.textContent = `${s.temperature}F`;
+    els.humidityValue.textContent = `${s.humidity}%`;
+    els.environmentText.textContent = `DEV TEMP ${s.temperature}F  DEV HUM ${s.humidity}%`;
+    els.stateText.textContent = s.locked ? "LOCK" : "SEARCH";
+    els.bpmText.textContent = s.locked ? String(s.bpm) : "--";
+    els.ibiText.textContent = s.locked ? String(s.ibi) : "--";
+    els.bpmValue.textContent = String(s.bpm);
+    els.ibiValue.textContent = `${s.ibi} ms`;
+    els.qualityValue.textContent = `${s.quality} / 12`;
+    els.amplitudeValue.textContent = String(s.amplitude);
+    els.sigAmplitude.textContent = `A${pad3(s.amplitude)}`;
+    els.thresholdValue.textContent = String(s.threshold);
+    els.thresholdText.textContent = `THR${s.threshold}`;
+    els.thresholdLine.setAttribute("y1", signalToY(s.threshold));
+    els.thresholdLine.setAttribute("y2", signalToY(s.threshold));
+    els.coachText.textContent = s.coach;
+    els.version.textContent = s.version;
+    els.wavePath.setAttribute("d", buildWave(s.amplitude));
+
+    renderBars(els.signalTicks, 6, Math.round(s.quality / 2), "on");
+
+    els.beatOne.style.left = `${126 + Math.min(10, s.amplitude / 80)}px`;
+    els.beatOne.style.top = `${48 - Math.min(28, s.amplitude / 26)}px`;
+    els.beatTwo.style.left = `${250 + Math.min(10, s.amplitude / 90)}px`;
+    els.beatTwo.style.top = `${51 - Math.min(28, s.amplitude / 28)}px`;
+
+    els.stateOutput.value = JSON.stringify(s, null, 2);
+  }
+
+  Object.values(controls).forEach((control) => {
+    control.addEventListener("input", render);
+    control.addEventListener("change", render);
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    controls.boxes.checked = true;
+    controls.darkMode.checked = false;
+    controls.locked.checked = false;
+    controls.battery.value = 72;
+    controls.temperature.value = 72;
+    controls.humidity.value = 45;
+    controls.bpm.value = 72;
+    controls.ibi.value = 833;
+    controls.quality.value = 8;
+    controls.amplitude.value = 420;
+    controls.threshold.value = 550;
+    controls.coach.value = "HOLD STEADY";
+    controls.versionInput.value = "0.4.43-rlcd";
+    render();
+  });
+
+  document.getElementById("copyState").addEventListener("click", async () => {
+    render();
+    try {
+      await navigator.clipboard.writeText(els.stateOutput.value);
+    } catch {
+      els.stateOutput.select();
+      document.execCommand("copy");
+    }
+  });
+
+  render();
+</script>
+</body>
+</html>
