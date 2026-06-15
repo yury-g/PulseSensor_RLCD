@@ -6,7 +6,7 @@ This repo is the small, device-specific branch of the PulseSensor CYD work. It k
 
 GitHub repo: <https://github.com/yury-g/PulseSensor_RLCD>
 
-![LiveCyberDeck 1.0.1 dashboard, live on the Waveshare ESP32-S3-RLCD-4.2](docs/screenshots/livecyberdeck-1.0.1-hero.png)
+![LiveCyberDeck dashboard, live on the Waveshare ESP32-S3-RLCD-4.2](docs/screenshots/livecyberdeck-hero.png)
 
 ## Known Working State
 
@@ -19,8 +19,8 @@ GitHub repo: <https://github.com/yury-g/PulseSensor_RLCD>
 - Environment monitor: onboard SHTC3, displayed as device temperature in Fahrenheit and humidity
 - Buttons known on board: `BOOT/GPIO0`, `KEY/GPIO18`
 - Serial/upload port used during Mini Narwhal validation: `/dev/cu.usbmodem31101`
-- Firmware: `LiveCyberDeck 1.0.1` (2026-06-15) — name/version/date set via `APP_NAME` / `APP_VERSION` / `APP_DATE` build flags
-- Hardware result: flashed and confirmed working on the RLCD device (`LiveCyberDeck 1.0.1`, June 15, 2026)
+- Firmware: `LiveCyberDeck 1.0.3` (2026-06-15) — name/version/date set via `APP_NAME` / `APP_VERSION` / `APP_DATE` build flags
+- Hardware result: flashed and confirmed working on the RLCD device (June 15, 2026)
 - Validated serial telemetry: `battery=4.16V 100% adc=1717 tempF=70.1 humidity=58`
 
 ## Dashboard
@@ -52,7 +52,7 @@ See:
 - [Line art GP1 header](docs/wiring/back-header-line-art-gp1.svg)
 - [Schematic wiring](docs/wiring/pulsesensor-rlcd-schematic.svg)
 - [Block diagram](docs/wiring/pulsesensor-rlcd-block-diagram.svg)
-- [LiveCyberDeck 1.0.1 dashboard hero](docs/screenshots/livecyberdeck-1.0.1-hero.png)
+- [LiveCyberDeck dashboard hero](docs/screenshots/livecyberdeck-hero.png)
 - [Earlier 0.4.42 build screenshot](docs/screenshots/rlcd-dashboard-0.4.42-battery-runtime-rlcd.svg)
 
 ## Build And Flash

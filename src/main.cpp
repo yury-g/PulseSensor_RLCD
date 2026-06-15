@@ -16,7 +16,7 @@
 #endif
 
 #ifndef APP_VERSION
-#define APP_VERSION "1.0.1"
+#define APP_VERSION "1.0.3"
 #endif
 
 #ifndef APP_DATE
@@ -224,11 +224,12 @@ DashboardState dashboard;
 TelemetryState telemetry;
 esp_adc_cal_characteristics_t batteryAdcCharacteristics;
 
-// v3 dashboard: per-beat qualified-reading ring buffers for the panel sparklines
-int bpmRing[37];
+// v3 dashboard: per-beat qualified-reading ring buffers for the panel sparklines.
+// Capacity = plot width / 2px pitch, so a full ring fills the chart box edge-to-edge.
+int bpmRing[46];
 int bpmHead = -1;
 int bpmCount = 0;
-int ibiRing[33];
+int ibiRing[44];
 int ibiHead = -1;
 int ibiCount = 0;
 
@@ -687,12 +688,12 @@ void readPulseSensor() {
     if (decision.accepted) {
       displayBPM = bpm;
       displayIBI = ibi;
-      bpmHead = (bpmHead + 1) % 37;
+      bpmHead = (bpmHead + 1) % 46;
       bpmRing[bpmHead] = bpm;
-      if (bpmCount < 37) bpmCount++;
-      ibiHead = (ibiHead + 1) % 33;
+      if (bpmCount < 46) bpmCount++;
+      ibiHead = (ibiHead + 1) % 44;
       ibiRing[ibiHead] = ibi;
-      if (ibiCount < 33) ibiCount++;
+      if (ibiCount < 44) ibiCount++;
       lastQualifiedBeatTime = now;
       unqualifiedBeatStreak = 0;
       lastLockDropReason = "none";
@@ -1286,8 +1287,7 @@ void drawGraphFrame() {
   uint16_t fg = textColor();
   uint16_t bg = screenBgColor();
 
-  display.drawRoundRect(GRAPH_LEFT - 2, GRAPH_TOP - 2, GRAPH_WIDTH + 4, GRAPH_HEIGHT + 4, 6, fg);
-  display.drawRoundRect(GRAPH_LEFT - 1, GRAPH_TOP - 1, GRAPH_WIDTH + 2, GRAPH_HEIGHT + 2, 5, fg);
+  display.drawRoundRect(GRAPH_LEFT - 2, GRAPH_TOP - 2, GRAPH_WIDTH + 4, GRAPH_HEIGHT + 4, 7, fg);
 
   for (int x = 0; x <= GRAPH_WIDTH; x += 48) {
     drawDottedVLine(GRAPH_LEFT + x, GRAPH_TOP, GRAPH_HEIGHT, fg, 2);
@@ -1357,26 +1357,24 @@ void drawPanels() {
   uint16_t edge = lockedSignal ? signalLockColor() : signalSearchColor();
 
   // BPM panel: number on the left wall, "BPM" tucked top-right, wide sparkline filling the rest.
-  display.fillRoundRect(2, 210, 197, 88, 6, bg);
-  display.drawRoundRect(2, 210, 197, 88, 6, edge);
-  display.drawRoundRect(4, 212, 193, 84, 5, edge);
+  display.fillRoundRect(2, 210, 197, 88, 7, bg);
+  display.drawRoundRect(2, 210, 197, 88, 7, edge);
   drawBoldText("BPM", 9, 216, 2, fg, bg);
   char bpmText[8];
   if (lockedSignal) snprintf(bpmText, sizeof(bpmText), "%d", displayBPM);
   else snprintf(bpmText, sizeof(bpmText), "--");
   drawBoldText(bpmText, 9, 248, 5, fg, bg);
-  drawSparkline(bpmRing, bpmHead, bpmCount, 37, 100, 216, 96, 78, 102, 220, 92, 70, 40, 180, 60, 100);
+  drawSparkline(bpmRing, bpmHead, bpmCount, 46, 100, 216, 96, 78, 102, 220, 92, 70, 40, 180, 60, 100);
 
   // IBI panel
-  display.fillRoundRect(201, 210, 197, 88, 6, bg);
-  display.drawRoundRect(201, 210, 197, 88, 6, edge);
-  display.drawRoundRect(203, 212, 193, 84, 5, edge);
+  display.fillRoundRect(201, 210, 197, 88, 7, bg);
+  display.drawRoundRect(201, 210, 197, 88, 7, edge);
   drawBoldText("IBI", 208, 216, 2, fg, bg);
   char ibiText[8];
   if (lockedSignal) snprintf(ibiText, sizeof(ibiText), "%d", displayIBI);
   else snprintf(ibiText, sizeof(ibiText), "--");
   drawBoldText(ibiText, 208, 250, 4, fg, bg);
-  drawSparkline(ibiRing, ibiHead, ibiCount, 33, 303, 216, 92, 78, 305, 220, 88, 70, 333, 1500, 600, 1000);
+  drawSparkline(ibiRing, ibiHead, ibiCount, 44, 303, 216, 92, 78, 305, 220, 88, 70, 333, 1500, 600, 1000);
 }
 
 void drawRightBoldText(const char* s, int rightX, int y, int size, uint16_t color, uint16_t bg) {
@@ -1389,7 +1387,7 @@ void drawSparkline(const int* ring, int head, int count, int n,
                    int px, int py, int pw, int ph, int lo, int hi,
                    int ref1, int ref2) {
   uint16_t fg = textColor();
-  display.drawRect(fx, fy, fw, fh, fg);
+  display.drawRoundRect(fx, fy, fw, fh, 3, fg);
   // Dotted low / normal / high reference lines so the trend reads against real zones.
   int y1 = (py + ph - 1) - (int)((long)(constrain(ref1, lo, hi) - lo) * (ph - 1) / (hi - lo));
   int y2 = (py + ph - 1) - (int)((long)(constrain(ref2, lo, hi) - lo) * (ph - 1) / (hi - lo));
