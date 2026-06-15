@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="880" viewBox="0 0 1200 880" role="img" aria-labelledby="title desc">
   <title id="title">Line-art Waveshare rear header showing GP1 PulseSensor signal pin</title>
   <desc id="desc">Line-art drawing of the Waveshare ESP32-S3-RLCD-4.2 rear 2x8 header. The purple PulseSensor signal cable connects to bottom row GP1.</desc>
   <defs>
@@ -21,7 +21,7 @@
     </style>
   </defs>
 
-  <rect class="bg" width="1200" height="760"/>
+  <rect class="bg" width="1200" height="880"/>
 
   <text class="text title" x="56" y="62">Back header line art: PulseSensor purple signal wire</text>
   <text class="text small" x="56" y="96">Use the lower socket labeled GP1. In the current firmware this is GPIO1 / ADC1_CH0.</text>
@@ -87,5 +87,5 @@
     </g>
   </g>
 
-  <text class="text small" x="56" y="712">Answer: plug the purple PulseSensor cable into the lower-row GP1 socket. That is the 4th lower pin from the left in this photo orientation.</text>
+  <text class="text small" x="56" y="852">Answer: plug the purple PulseSensor cable into the lower-row GP1 socket. That is the 4th lower pin from the left in this photo orientation.</text>
 </svg>
