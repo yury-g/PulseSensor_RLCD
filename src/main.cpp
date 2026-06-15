@@ -11,8 +11,16 @@
 
 #include "rlcd_st7305.h"
 
+#ifndef APP_NAME
+#define APP_NAME "LiveCyberDeck"
+#endif
+
 #ifndef APP_VERSION
-#define APP_VERSION "0.4.42-battery-runtime-rlcd"
+#define APP_VERSION "1.0.1"
+#endif
+
+#ifndef APP_DATE
+#define APP_DATE "2026-06-15"
 #endif
 
 #ifndef PULSE_PIN
@@ -84,7 +92,7 @@ static constexpr int SHTC3_MEASUREMENT_WAIT_MS = 20;
 static constexpr int GRAPH_LEFT = 2;
 static constexpr int GRAPH_TOP = 58;
 static constexpr int GRAPH_WIDTH = 396;
-static constexpr int GRAPH_HEIGHT = 128;
+static constexpr int GRAPH_HEIGHT = 148;
 static constexpr int PANEL_Y = 204;
 static constexpr int PANEL_H = 78;
 static constexpr int BPM_PANEL_X = 0;
@@ -185,6 +193,7 @@ struct DashboardState {
   int lastSignalHarmonyQuality = 0;
   int waveformY[GRAPH_WIDTH];
   uint8_t waveformMarker[GRAPH_WIDTH];
+  uint8_t waveformThick[GRAPH_WIDTH];
   int waveformWriteX = 0;
   bool waveformBeatMarkerPending = false;
   bool waveformBeatMarkerPendingAccepted = false;
@@ -214,6 +223,14 @@ PulseSignalState pulseState;
 DashboardState dashboard;
 TelemetryState telemetry;
 esp_adc_cal_characteristics_t batteryAdcCharacteristics;
+
+// v3 dashboard: per-beat qualified-reading ring buffers for the panel sparklines
+int bpmRing[37];
+int bpmHead = -1;
+int bpmCount = 0;
+int ibiRing[33];
+int ibiHead = -1;
+int ibiCount = 0;
 
 int& currentSignal = pulseState.currentSignal;
 int& displayBPM = pulseState.displayBPM;
@@ -296,6 +313,7 @@ void captureWaveformSample();
 void resetDashboardState();
 void drawDashboardIfDue();
 void drawDashboard();
+void drawSplashScreen();
 void drawHeader();
 void drawHeaderTelemetry();
 void drawBatteryIndicator(int x, int y);
@@ -325,12 +343,15 @@ int signalToGraphY(int signal);
 int ledPulseEnvelopeBrightness(unsigned long age);
 void updateBeatPulse();
 void maybePrintSerialStatus();
+void drawSignalOverlays();
+void drawSparkline(const int* ring, int head, int count, int n, int fx, int fy, int fw, int fh, int px, int py, int pw, int ph, int lo, int hi, int ref1, int ref2);
+void drawRightBoldText(const char* s, int rightX, int y, int size, uint16_t color, uint16_t bg);
 
 void setup() {
   Serial.begin(115200);
   delay(200);
-  Serial.println("PulseSensor RLCD dashboard prototype");
-  Serial.printf("Firmware=%s\n", APP_VERSION);
+  Serial.println("LiveCyberDeck - PulseSensor RLCD dashboard");
+  Serial.printf("Firmware=%s %s (%s)\n", APP_NAME, APP_VERSION, APP_DATE);
   Serial.printf("Board=ESP32-S3-RLCD-4.2 display=ST7305 400x300 pulsePin=GPIO%d\n", PULSE_PIN);
 
   pinMode(PIN_BOOT, INPUT_PULLUP);
@@ -341,6 +362,11 @@ void setup() {
   display.setTextWrap(false);
   if (!displayReady) {
     Serial.println("ST7305 framebuffer allocation failed");
+  }
+
+  if (displayReady) {
+    drawSplashScreen();
+    delay(2000);
   }
 
   resetDashboardState();
@@ -661,6 +687,12 @@ void readPulseSensor() {
     if (decision.accepted) {
       displayBPM = bpm;
       displayIBI = ibi;
+      bpmHead = (bpmHead + 1) % 37;
+      bpmRing[bpmHead] = bpm;
+      if (bpmCount < 37) bpmCount++;
+      ibiHead = (ibiHead + 1) % 33;
+      ibiRing[ibiHead] = ibi;
+      if (ibiCount < 33) ibiCount++;
       lastQualifiedBeatTime = now;
       unqualifiedBeatStreak = 0;
       lastLockDropReason = "none";
@@ -1107,6 +1139,8 @@ void captureWaveformSample() {
   dashboard.lastWaveSample = now;
 
   dashboard.waveformY[dashboard.waveformWriteX] = signalToGraphY(currentSignal);
+  dashboard.waveformThick[dashboard.waveformWriteX] =
+      (lockedSignal && signalQuality >= 6) ? 3 : 2;
   if (dashboard.waveformBeatMarkerPending) {
     dashboard.waveformMarker[dashboard.waveformWriteX] =
         dashboard.waveformBeatMarkerPendingAccepted ? 2 : 1;
@@ -1126,10 +1160,15 @@ void resetDashboardState() {
   for (int i = 0; i < GRAPH_WIDTH; i++) {
     dashboard.waveformY[i] = centerY;
     dashboard.waveformMarker[i] = 0;
+    dashboard.waveformThick[i] = 2;
   }
   dashboard.waveformWriteX = 0;
   dashboard.waveformBeatMarkerPending = false;
   dashboard.waveformBeatMarkerPendingAccepted = false;
+  bpmHead = -1;
+  bpmCount = 0;
+  ibiHead = -1;
+  ibiCount = 0;
   dashboard.needsRedraw = true;
 }
 
@@ -1143,11 +1182,25 @@ void drawDashboardIfDue() {
   display.display();
 }
 
+void drawSplashScreen() {
+  uint16_t bg = screenBgColor();
+  uint16_t fg = textColor();
+  display.clear(bg);
+  fillHeartShape(200, 72, 18, fg);
+  drawCenteredText("LiveCyberDeck", 0, 112, 400, 4, fg, bg);
+  drawCenteredText("PulseSensor.com", 0, 162, 400, 2, fg, bg);
+  char splashVer[48];
+  snprintf(splashVer, sizeof(splashVer), "v%s   %s", APP_VERSION, APP_DATE);
+  drawCenteredText(splashVer, 0, 198, 400, 2, fg, bg);
+  display.display();
+}
+
 void drawDashboard() {
   display.clear(screenBgColor());
   drawHeader();
   drawGraphFrame();
   drawWaveformHistory();
+  drawSignalOverlays();
   drawPanels();
 }
 
@@ -1158,9 +1211,15 @@ void drawHeader() {
   display.setTextColor(fg, bg);
   drawBoldText("PulseSensor.com", 14, 10, 2, fg, bg);
 
+  unsigned long upSec = millis() / 1000UL;
+  char versionLine[56];
+  snprintf(versionLine, sizeof(versionLine), "%s %s  UP %lu:%02lu:%02lu",
+           APP_NAME, APP_VERSION,
+           upSec / 3600UL, (upSec % 3600UL) / 60UL, upSec % 60UL);
   display.setTextSize(1);
+  display.setTextColor(fg, bg);
   display.setCursor(17, 34);
-  display.print(APP_VERSION);
+  display.print(versionLine);
 
   drawBeatHeart(226, 26);
   drawHeaderTelemetry();
@@ -1214,11 +1273,11 @@ void drawBatteryIndicator(int x, int y) {
   if (telemetry.batteryValid) {
     snprintf(percentText,
              sizeof(percentText),
-             "Battery %d%% %.2fV",
+             "Bat %d%% %.2fV",
              telemetry.batteryPercent,
              telemetry.batteryVoltage);
   } else {
-    snprintf(percentText, sizeof(percentText), "Battery --%%");
+    snprintf(percentText, sizeof(percentText), "Bat --%%");
   }
   drawBoldText(percentText, x + 28, y + 1, 1, fg, bg);
 }
@@ -1230,38 +1289,27 @@ void drawGraphFrame() {
   display.drawRoundRect(GRAPH_LEFT - 2, GRAPH_TOP - 2, GRAPH_WIDTH + 4, GRAPH_HEIGHT + 4, 6, fg);
   display.drawRoundRect(GRAPH_LEFT - 1, GRAPH_TOP - 1, GRAPH_WIDTH + 2, GRAPH_HEIGHT + 2, 5, fg);
 
-  for (int x = 0; x <= GRAPH_WIDTH; x += 46) {
-    drawDottedVLine(GRAPH_LEFT + x, GRAPH_TOP, GRAPH_HEIGHT, fg, 7);
+  for (int x = 0; x <= GRAPH_WIDTH; x += 48) {
+    drawDottedVLine(GRAPH_LEFT + x, GRAPH_TOP, GRAPH_HEIGHT, fg, 2);
   }
-  for (int y = 0; y <= GRAPH_HEIGHT; y += 32) {
-    drawDottedHLine(GRAPH_LEFT, GRAPH_TOP + y, GRAPH_WIDTH, fg, 7);
+  for (int y = 0; y <= GRAPH_HEIGHT; y += 24) {
+    drawDottedHLine(GRAPH_LEFT, GRAPH_TOP + y, GRAPH_WIDTH, fg, 2);
   }
 
   int thresholdY = signalToGraphY(activePulseThreshold);
-  for (int x = 0; x < GRAPH_WIDTH; x += 6) {
-    display.drawFastVLine(GRAPH_LEFT + x, thresholdY - 1, 3, fg);
+  for (int x = 0; x < GRAPH_WIDTH; x += 8) {
+    display.drawFastHLine(GRAPH_LEFT + x, thresholdY, 4, fg);
   }
 
   display.setTextColor(fg, bg);
   drawBoldText("LIVE", GRAPH_LEFT + GRAPH_PAD_X, GRAPH_TOP + GRAPH_PAD_Y, GRAPH_LABEL_TEXT_SIZE, fg, bg);
 
-  char thresholdText[12];
-  snprintf(thresholdText, sizeof(thresholdText), "THR%d", activePulseThreshold);
-  int thresholdW = strlen(thresholdText) * 6 * GRAPH_LABEL_TEXT_SIZE;
-  drawBoldText(thresholdText,
-               GRAPH_LEFT + GRAPH_WIDTH - thresholdW - GRAPH_PAD_X,
-               GRAPH_TOP + GRAPH_PAD_Y,
-               GRAPH_LABEL_TEXT_SIZE,
-               fg,
-               bg);
-
-  char status[32];
-  graphStatusText(status, sizeof(status));
-  int statusW = strlen(status) * 6 * GRAPH_LABEL_TEXT_SIZE;
-  int statusX = GRAPH_LEFT + GRAPH_WIDTH - statusW - GRAPH_PAD_X;
-  int statusY = GRAPH_TOP + GRAPH_HEIGHT - GRAPH_PAD_Y - 14;
-  display.fillRect(statusX - 4, statusY - 2, statusW + 8, 20, bg);
-  drawBoldText(status, statusX, statusY, GRAPH_LABEL_TEXT_SIZE, fg, bg);
+  // Label the trigger line directly so it's self-explanatory (replaces the raw "THR550").
+  const char* trigger = "TRIGGER";
+  int triggerW = ((int)strlen(trigger) * 6 - 1);
+  int triggerX = GRAPH_LEFT + GRAPH_WIDTH - triggerW - GRAPH_PAD_X;
+  display.fillRect(triggerX - 2, thresholdY - 4, triggerW + 4, 9, bg);
+  drawBoldText(trigger, triggerX, thresholdY - 3, 1, fg, bg);
 }
 
 void graphStatusText(char* buffer, size_t length) {
@@ -1272,18 +1320,21 @@ void drawWaveformHistory() {
   uint16_t fg = textColor();
   uint16_t trace = lockedSignal ? signalLockColor() : signalSearchColor();
 
+  // Solid connected pulse line, gently bolder when the signal is trustworthy.
   for (int i = 1; i < GRAPH_WIDTH; i++) {
     if (i == dashboard.waveformWriteX) continue;
     int x0 = GRAPH_LEFT + i - 1;
     int x1 = GRAPH_LEFT + i;
     int y0 = dashboard.waveformY[i - 1];
     int y1 = dashboard.waveformY[i];
-    display.drawLine(x0, y0, x1, y1, trace);
-    if (lockedSignal) {
-      display.drawLine(x0, y0 + 1, x1, y1 + 1, trace);
+    int t = dashboard.waveformThick[i] >= 3 ? 3 : 2;
+    int half = t / 2;
+    for (int k = 0; k < t; k++) {
+      display.drawLine(x0, y0 - half + k, x1, y1 - half + k, trace);
     }
   }
 
+  // Beat markers: filled circle for a qualified beat, open circle for an unqualified one.
   for (int i = 0; i < GRAPH_WIDTH; i++) {
     uint8_t marker = dashboard.waveformMarker[i];
     if (marker == 0) continue;
@@ -1292,19 +1343,92 @@ void drawWaveformHistory() {
     if (marker == 2) {
       display.fillCircle(x, y, 5, fg);
     } else {
-      display.drawCircle(x, y, 3, fg);
-      display.drawPixel(x, y, fg);
+      display.drawCircle(x, y, 5, fg);
     }
   }
 
   int cursorX = GRAPH_LEFT + dashboard.waveformWriteX;
-  display.drawFastVLine(cursorX, GRAPH_TOP + 1, GRAPH_HEIGHT - 2, fg);
+  display.drawFastVLine(cursorX, GRAPH_TOP + 4, GRAPH_HEIGHT - 12, fg);
 }
 
 void drawPanels() {
-  drawMetricPanel(BPM_PANEL_X, PANEL_Y, BPM_PANEL_W, PANEL_H, "BPM", displayBPM, "", lockedSignal);
-  drawMetricPanel(IBI_PANEL_X, PANEL_Y, IBI_PANEL_W, PANEL_H, "IBI", displayIBI, "ms", lockedSignal);
-  drawSignalPanel();
+  uint16_t fg = textColor();
+  uint16_t bg = panelBgColor();
+  uint16_t edge = lockedSignal ? signalLockColor() : signalSearchColor();
+
+  // BPM panel: number on the left wall, "BPM" tucked top-right, wide sparkline filling the rest.
+  display.fillRoundRect(2, 210, 197, 88, 6, bg);
+  display.drawRoundRect(2, 210, 197, 88, 6, edge);
+  display.drawRoundRect(4, 212, 193, 84, 5, edge);
+  drawBoldText("BPM", 9, 216, 2, fg, bg);
+  char bpmText[8];
+  if (lockedSignal) snprintf(bpmText, sizeof(bpmText), "%d", displayBPM);
+  else snprintf(bpmText, sizeof(bpmText), "--");
+  drawBoldText(bpmText, 9, 248, 5, fg, bg);
+  drawSparkline(bpmRing, bpmHead, bpmCount, 37, 100, 216, 96, 78, 102, 220, 92, 70, 40, 180, 60, 100);
+
+  // IBI panel
+  display.fillRoundRect(201, 210, 197, 88, 6, bg);
+  display.drawRoundRect(201, 210, 197, 88, 6, edge);
+  display.drawRoundRect(203, 212, 193, 84, 5, edge);
+  drawBoldText("IBI", 208, 216, 2, fg, bg);
+  char ibiText[8];
+  if (lockedSignal) snprintf(ibiText, sizeof(ibiText), "%d", displayIBI);
+  else snprintf(ibiText, sizeof(ibiText), "--");
+  drawBoldText(ibiText, 208, 250, 4, fg, bg);
+  drawSparkline(ibiRing, ibiHead, ibiCount, 33, 303, 216, 92, 78, 305, 220, 88, 70, 333, 1500, 600, 1000);
+}
+
+void drawRightBoldText(const char* s, int rightX, int y, int size, uint16_t color, uint16_t bg) {
+  int vw = ((int)strlen(s) * 6 - 1) * size;
+  drawBoldText(s, rightX - vw, y, size, color, bg);
+}
+
+void drawSparkline(const int* ring, int head, int count, int n,
+                   int fx, int fy, int fw, int fh,
+                   int px, int py, int pw, int ph, int lo, int hi,
+                   int ref1, int ref2) {
+  uint16_t fg = textColor();
+  display.drawRect(fx, fy, fw, fh, fg);
+  // Dotted low / normal / high reference lines so the trend reads against real zones.
+  int y1 = (py + ph - 1) - (int)((long)(constrain(ref1, lo, hi) - lo) * (ph - 1) / (hi - lo));
+  int y2 = (py + ph - 1) - (int)((long)(constrain(ref2, lo, hi) - lo) * (ph - 1) / (hi - lo));
+  drawDottedHLine(px, y1, pw, fg, 3);
+  drawDottedHLine(px, y2, pw, fg, 3);
+  if (count < 1) return;
+  int prevX = -1, prevY = 0;
+  for (int j = 0; j < count; j++) {
+    int idx = (head - (count - 1) + j + n * 2) % n;
+    int v = constrain(ring[idx], lo, hi);
+    int x = (px + pw - 2) - 2 * ((count - 1) - j);
+    int yy = (py + ph - 1) - (int)(((long)(v - lo) * (ph - 1)) / (hi - lo));
+    if (prevX >= 0) {
+      display.drawLine(prevX, prevY, x, yy, fg);
+      display.drawLine(prevX, prevY + 1, x, yy + 1, fg);
+    }
+    display.fillRect(x, yy, 2, 2, fg);
+    prevX = x;
+    prevY = yy;
+  }
+}
+
+void drawSignalOverlays() {
+  uint16_t fg = textColor();
+  uint16_t bg = screenBgColor();
+
+  // Single-line footer along the bottom of the live window: coach text on the left,
+  // signal-strength meter on the right, separated from the trace by a divider rule.
+  int footY = GRAPH_TOP + GRAPH_HEIGHT - 23;
+  display.fillRect(GRAPH_LEFT, footY, GRAPH_WIDTH, 22, bg);
+  display.drawFastHLine(GRAPH_LEFT, footY, GRAPH_WIDTH, fg);
+  drawBoldText(signalCoachText(), GRAPH_LEFT + 8, footY + 4, 2, fg, bg);
+  int lit = (signalQuality * 6 + 6) / 12;
+  int meterX = GRAPH_LEFT + GRAPH_WIDTH - (6 * 13) - 8;
+  for (int i = 0; i < 6; i++) {
+    int sx = meterX + i * 13;
+    if (i < lit) display.fillRect(sx, footY + 5, 10, 12, fg);
+    else display.drawRect(sx, footY + 5, 10, 12, fg);
+  }
 }
 
 void drawMetricPanel(int x, int y, int w, int h, const char* label, int value, const char* unit, bool valid) {

@@ -1,6 +1,6 @@
 {
-  "name": "PulseSensor RLCD Battery Runtime",
-  "version": "0.4.42-battery-runtime-rlcd",
+  "name": "LiveCyberDeck - PulseSensor RLCD",
+  "version": "1.0.1",
   "new_install_prompt_erase": true,
   "builds": [
     {

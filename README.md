@@ -6,6 +6,8 @@ This repo is the small, device-specific branch of the PulseSensor CYD work. It k
 
 GitHub repo: <https://github.com/yury-g/PulseSensor_RLCD>
 
+![LiveCyberDeck 1.0.1 dashboard, live on the Waveshare ESP32-S3-RLCD-4.2](docs/screenshots/livecyberdeck-1.0.1-hero.png)
+
 ## Known Working State
 
 - Board: Waveshare ESP32-S3-RLCD-4.2
@@ -17,9 +19,19 @@ GitHub repo: <https://github.com/yury-g/PulseSensor_RLCD>
 - Environment monitor: onboard SHTC3, displayed as device temperature in Fahrenheit and humidity
 - Buttons known on board: `BOOT/GPIO0`, `KEY/GPIO18`
 - Serial/upload port used during Mini Narwhal validation: `/dev/cu.usbmodem31101`
-- Firmware version string: `0.4.42-battery-runtime-rlcd`
-- Hardware result: flashed and confirmed working on the RLCD device on June 8, 2026.
-- Validated serial telemetry: `battery=3.91V 81% adc=1611 tempF=81.4 humidity=30.8`
+- Firmware: `LiveCyberDeck 1.0.1` (2026-06-15) — name/version/date set via `APP_NAME` / `APP_VERSION` / `APP_DATE` build flags
+- Hardware result: flashed and confirmed working on the RLCD device (`LiveCyberDeck 1.0.1`, June 15, 2026)
+- Validated serial telemetry: `battery=4.16V 100% adc=1717 tempF=70.1 humidity=58`
+
+## Dashboard
+
+`LiveCyberDeck` renders a live PulseSensor dashboard on the 400 x 300 reflective LCD:
+
+- A 2-second boot splash, then a header with brand, version, and a live `UP h:mm:ss` uptime (so a reset is obvious).
+- A large LIVE pulse window: solid waveform with filled/open beat circles, a dashed `TRIGGER` (beat-detection) line, a dotted grid, and a single-line footer pairing the signal-coach text with a strength meter.
+- Two big readouts — BPM and IBI — each with the number on the left wall and a qualified-beat trend sparkline with low / normal / high reference lines.
+- Header telemetry: battery percent + voltage, plus SHTC3 device temperature and humidity.
+- `KEY` (GPIO18) toggles light / dark mode.
 
 ## Wiring
 
@@ -40,8 +52,8 @@ See:
 - [Line art GP1 header](docs/wiring/back-header-line-art-gp1.svg)
 - [Schematic wiring](docs/wiring/pulsesensor-rlcd-schematic.svg)
 - [Block diagram](docs/wiring/pulsesensor-rlcd-block-diagram.svg)
-- [Rendered RLCD dashboard hero](docs/screenshots/rlcd-dashboard-hero.svg)
-- [Versioned 0.4.42 build screenshot](docs/screenshots/rlcd-dashboard-0.4.42-battery-runtime-rlcd.svg)
+- [LiveCyberDeck 1.0.1 dashboard hero](docs/screenshots/livecyberdeck-1.0.1-hero.png)
+- [Earlier 0.4.42 build screenshot](docs/screenshots/rlcd-dashboard-0.4.42-battery-runtime-rlcd.svg)
 
 ## Build And Flash
 
