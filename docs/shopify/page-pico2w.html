@@ -1,0 +1,650 @@
+<!-- ============================================================
+     PulseSensor + Raspberry Pi Pico 2 W (standalone) — Shopify page body
+     Customer-facing page for pulsesensor.com/pages/pico-2-w (staged UNPUBLISHED).
+
+     STATUS: DRAFT BUILD. Compile-verified (arduino-cli 1.4.1, core
+     rp2040:rp2040 5.6.0, FQBN rp2040:rp2040:rpipico2w; PulseSensor
+     Playground 2.5.0 + RPI_PICO_TimerInterrupt 1.3.1, both sketches PASS
+     2026-06-16). NOT yet hardware-verified — wiring (GP28 / ADC2) and
+     firmware may change after the bench test. Do not publish until the
+     real Pico 2 W bench pass and real photos land.
+
+     Structure & voice mirror the live pages
+     pulsesensor.com/pages/cyd and pulsesensor.com/pages/waveshare-rlcd.
+     Self-contained: every style is scoped to .pcd- (cloned from the RLCD
+     page's <style>, .rlcd- -> .pcd-). Theme provides the site chrome,
+     so there is NO custom top nav here.
+
+     This build = the STANDALONE single clean path: wire 3 pins ->
+     flash one .uf2 -> open the WebSerial app in Chrome -> watch the
+     live signal/BPM/IBI/beat in the browser. NO on-board screen, NO
+     WiFi/AP (the browser is the display). The 52Pi "PicoDeck" (TFT +
+     touch) is a SEPARATE later page; only cross-linked here.
+
+     Brand: salmon red #E63946 accents, warm-blue #1E88E5 CTAs, charcoal
+     text. NEVER purple/magenta ANYWHERE except the one real purple
+     PulseSensor signal wire in the wiring/pinout art and its prose
+     swatch (.wire-pur = #7845B8).
+
+     FLASH = drag-and-drop .uf2 via BOOTSEL (no ESP Web Tools / browser
+     flasher on this page), so there is NO <esp-web-install-button> and
+     NO install-button.js module script. The .pcd-flash-card shell is
+     reused for brand consistency but re-skinned for the BOOTSEL flow.
+
+     IMAGES below are stand-ins (a hand-drawn placeholder SVG and a mock
+     dashboard). Each carries a "SWAP FOR REAL PHOTO" comment — replace
+     after the GP28 bench test. Do NOT reuse the CYD or RLCD board art.
+     ============================================================ -->
+
+<style>
+  .pcd-page { max-width: 900px; margin: 0 auto; color: #2B2B2B; line-height: 1.6; }
+  .pcd-page h1 { font-size: 2.4rem; margin: 0 0 8px; color: #2B2B2B; line-height: 1.15; }
+  .pcd-page h2 { font-size: 1.6rem; margin: 38px 0 12px; color: #2B2B2B; border-bottom: 3px solid #E63946; padding-bottom: 6px; display: inline-block; }
+  .pcd-page h3 { font-size: 1.2rem; margin: 22px 0 8px; color: #2B2B2B; }
+  .pcd-page p { margin: 8px 0 14px; }
+  .pcd-page a { color: #1E88E5; text-decoration: none; }
+  .pcd-page a:hover { text-decoration: underline; }
+  .pcd-page code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: #F5F1EA; padding: 2px 6px; border-radius: 4px; font-size: 0.92em; color: #2B2B2B; }
+  .pcd-page pre { background: #1A1A1A; color: #E8FFFB; padding: 14px 16px; border-radius: 6px; overflow-x: auto; }
+  .pcd-page pre code { background: transparent; color: inherit; padding: 0; }
+  .pcd-page table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+  .pcd-page th, .pcd-page td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #E5E0D6; vertical-align: top; }
+  .pcd-page th { background: #FFFDF7; font-weight: 700; color: #2B2B2B; }
+  .pcd-page ul, .pcd-page ol { padding-left: 22px; }
+  .pcd-page li { margin: 5px 0; }
+  .pcd-page .lede { font-size: 1.15rem; color: #4A4A4A; margin-bottom: 10px; }
+  .pcd-page .lede-series { font-size: 1.02rem; color: #6B7280; margin: 0 0 22px; }
+  .pcd-page .tag { display: inline-block; background: #E63946; color: #fff; font-weight: 700; font-size: 0.8rem; padding: 4px 12px; border-radius: 999px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+  .pcd-page .disclaimer { font-size: 0.95rem; color: #6B7280; font-style: italic; }
+
+  .pcd-cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0 6px; }
+  .pcd-cta { display: inline-block; border-radius: 6px; font-weight: 800; padding: 13px 24px; letter-spacing: 0.3px; }
+  .pcd-cta-primary { background: #1E88E5; color: #FFFFFF !important; }
+  .pcd-cta-primary:hover { background: #1565C0; text-decoration: none; }
+  .pcd-cta-secondary { background: #FFFDF7; color: #1E88E5 !important; border: 2px solid #1E88E5; }
+  .pcd-cta-secondary:hover { background: #F2F8FE; text-decoration: none; }
+  .pcd-cta-tertiary { background: transparent; color: #1E88E5 !important; border: 2px solid #E5E0D6; }
+  .pcd-cta-tertiary:hover { border-color: #1E88E5; text-decoration: none; }
+
+  .pcd-draft-badge { border-left: 4px solid #E63946; background: #FFF5F4; padding: 12px 16px; margin: 16px 0; border-radius: 4px; color: #2B2B2B; font-size: 0.96rem; }
+  .pcd-draft-badge strong { color: #E63946; }
+
+  .pcd-flash-card { background: #FFFDF7; border: 2px solid #1E88E5; border-radius: 10px; padding: 28px 24px; margin: 22px 0 28px; text-align: center; }
+  .pcd-flash-card h2 { border: none; margin: 0 0 6px; font-size: 1.5rem; display: block; }
+  .pcd-flash-card .ver { display: inline-block; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.85rem; color: #6B7280; margin-bottom: 14px; }
+  .pcd-flash-card .req { color: #6B7280; font-size: 0.95rem; margin: 0 auto 18px; max-width: 620px; }
+  .pcd-flash-card .reassure { color: #4CAF50; font-weight: 700; font-size: 0.95rem; margin: 14px 0 0; }
+
+  .pcd-steps { counter-reset: step; list-style: none; padding: 0; max-width: 640px; margin: 0 auto 6px; text-align: left; }
+  .pcd-steps li { counter-increment: step; position: relative; padding: 8px 8px 8px 44px; margin: 8px 0; }
+  .pcd-steps li::before { content: counter(step); position: absolute; left: 0; top: 6px; width: 28px; height: 28px; background: #E63946; color: #fff; border-radius: 50%; font-weight: 800; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; }
+
+  .pcd-warn { border-left: 4px solid #E63946; background: #FFF5F4; padding: 12px 16px; margin: 14px 0; border-radius: 4px; color: #2B2B2B; }
+  .pcd-ok { border-left: 4px solid #4CAF50; background: #F2FBF3; padding: 12px 16px; margin: 14px 0; border-radius: 4px; color: #2B2B2B; }
+  .pcd-aside { background: #FBFAF5; border: 1px dashed #D9D2C4; border-radius: 6px; padding: 12px 16px; margin: 16px 0; color: #4A4A4A; font-size: 0.96rem; }
+
+  .pcd-screens { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 14px 0; }
+  .pcd-screens figure { margin: 0; }
+  .pcd-screens img { width: 100%; height: auto; border: 1px solid #E5E0D6; border-radius: 6px; background: #FAFAF4; }
+  .pcd-screens figcaption { text-align: center; font-size: 0.9rem; color: #6B7280; margin-top: 6px; }
+  @media (max-width: 600px) { .pcd-screens { grid-template-columns: 1fr; } }
+
+  .pcd-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin: 14px 0; }
+  .pcd-features .f { background: #FFFDF7; border: 1px solid #E5E0D6; border-radius: 6px; padding: 14px; }
+  .pcd-features .f strong { color: #E63946; }
+
+  .pcd-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0; }
+  .pcd-cards .card { border: 1px solid #E5E0D6; border-radius: 8px; padding: 18px; background: #FFFDF7; }
+  .pcd-cards .card h3 { margin-top: 0; }
+  @media (max-width: 600px) { .pcd-cards { grid-template-columns: 1fr; } }
+
+  .pcd-hero { margin: 18px 0 10px; border-radius: 10px; overflow: hidden; border: 1px solid #E5E0D6; background: #EEF0EA; position: relative; }
+  .pcd-hero img { width: 100%; height: auto; display: block; }
+  .pcd-hero-banner { position: absolute; top: 10px; left: 10px; background: #E63946; color: #fff; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .pcd-cap { text-align: center; font-size: 0.9rem; color: #6B7280; margin: 0 0 18px; }
+
+  /* The single real PulseSensor purple signal wire — the ONLY purple on this page,
+     matched to the purple in the wiring art (#7845B8). Red/black per brand. */
+  .wire-red { color: #E63946; font-weight: 700; }
+  .wire-blk { color: #2B2B2B; font-weight: 700; }
+  .wire-pur { color: #7845B8; font-weight: 700; }
+
+  .pcd-foot { margin-top: 30px; padding-top: 16px; border-top: 1px solid #E5E0D6; color: #6B7280; font-size: 0.95rem; }
+  .pcd-foot .heart { color: #E63946; }
+  .pcd-sendoff { font-size: 1.1rem; color: #2B2B2B; font-weight: 600; margin: 28px 0 8px; }
+</style>
+
+<div class="pcd-page">
+
+  <span class="tag">Raspberry Pi Pico Builder Path</span>
+  <h1>PulseSensor + Raspberry Pi Pico 2 W</h1>
+  <p class="lede"><strong>From three breadboard wires to a live browser waveform.</strong> Wire the sensor, flash one file, and watch your heartbeat signal in Chrome over USB WebSerial.</p>
+  <p>This is the standalone Pico 2 W path: a PulseSensor, a Raspberry Pi Pico 2 W, three jumper wires on a solderless breadboard, and one USB cable. No screen module, no WiFi, no app to install. You flash a single <code>.uf2</code>, open the PulseSensor WebSerial page in your browser, and the browser becomes the display &mdash; drawing the live signal, BPM, IBI, and beat events as they happen.</p>
+
+  <div class="pcd-cta-row">
+    <a class="pcd-cta pcd-cta-primary" href="#wire">Wire It Up</a>
+    <a class="pcd-cta pcd-cta-secondary" href="#webserial">Open The WebSerial Dashboard</a>
+    <a class="pcd-cta pcd-cta-tertiary" href="https://pulsesensor.com/pages/cyberdeck-matrix">Compare The CyberDeck Paths</a>
+  </div>
+
+  <p class="disclaimer">Educational biofeedback demo. Not a medical device and not for medical use.</p>
+
+  <div class="pcd-draft-badge"><strong>Draft build.</strong> Compile-verified, not yet hardware-verified. Wiring and firmware may change after the bench test.</div>
+
+  <!-- ============ HERO FIGURE ============ -->
+  <!-- SWAP FOR REAL PHOTO: this is the hand-drawn placeholder SVG
+       (website-mockups/wokwi-pico2w-pulsesensor/circuit-placeholder.svg) — it is
+       flagged in its own text as a draft pending real Pico 2 W hardware validation.
+       Replace this <img> src with a top-down photo of the actual wired breadboard
+       once the GP28 / ADC2 wiring is bench-verified. Do NOT reuse the CYD
+       (cyd-hero-banner.jpg) or RLCD (livecyberdeck-hero.png) art — wrong board.
+       GO-LIVE: all image srcs on this page point at the
+       github.com/WorldFamousElectronics/PulseSensor_Pico_2_W repo (docs/wiring
+       and docs/screenshots). Confirm that repo is created and PUBLIC with the
+       real assets committed before publishing, or these placeholders 404 on the
+       staged page. (Note the source-code CTA + matrix intentionally point at the
+       existing PulseSensorPlayground repo, which is already public.) -->
+  <div class="pcd-hero">
+    <span class="pcd-hero-banner">Draft visual &mdash; replace with top-down build photo</span>
+    <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_Pico_2_W/main/docs/wiring/circuit-placeholder.svg" alt="PulseSensor wired to a Raspberry Pi Pico 2 W on a solderless breadboard: red wire to 3V3, black wire to GND, purple signal wire to GP28 / ADC2, with the red PulseSensor disc at right." />
+  </div>
+  <p class="pcd-cap">Draft wiring visual. We will replace this with a top-down breadboard photo after the hardware pass.</p>
+
+  <!-- ============ QUICK NAVIGATION ============ -->
+  <h2>Wires &rarr; Waveform</h2>
+  <p>Four steps, one straight line: wire three pins, send data over USB, open the dashboard, read the waveform. Each step links to its section below.</p>
+
+  <table>
+    <thead>
+      <tr><th>Step</th><th>What you do</th><th>Hardware</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="#getting-started">0. Getting Started</a></td><td>Install Arduino IDE, add Pico 2 W board support, upload a Blink test</td><td>Pico 2 W only</td></tr>
+      <tr><td><a href="#wire">1. Wire PulseSensor</a></td><td>Connect three jumper wires on a solderless breadboard</td><td>Pico 2 W + PulseSensor</td></tr>
+      <tr><td><a href="#send-data">2. Send Data Over USB</a></td><td>Flash one sketch that prints heartbeat data as CSV</td><td>Pico 2 W + PulseSensor</td></tr>
+      <tr><td><a href="#webserial">3. Open The WebSerial Dashboard</a></td><td>Connect in Chrome and watch the live waveform</td><td>Pico 2 W + USB cable + Chrome</td></tr>
+      <tr><td><a href="#troubleshooting">Troubleshooting</a></td><td>Cable, port, wiring, and signal fixes</td><td>Same setup</td></tr>
+    </tbody>
+  </table>
+
+  <p class="pcd-cap">Three wires &rarr; one <code>.uf2</code> &rarr; Chrome WebSerial &rarr; live waveform. The browser is the display.</p>
+
+  <!-- ============ HOW THIS PAGE WORKS ============ -->
+  <h2>How This Page Works</h2>
+  <p>This page has one destination: your PulseSensor signal drawn live in your browser. You wire three pins, flash a single file to the Pico 2 W, and open the PulseSensor WebSerial page in Chrome. The Pico streams plain text over the USB cable, and the browser turns each line into a moving waveform plus live BPM, IBI, and beat readouts.</p>
+  <p>There is no onboard screen and no WiFi in this build. You do not need an OLED, a TFT, a Bluetooth connection, or any app beyond a Chromium-family browser. The USB cable carries both power and data, and the browser does all the drawing.</p>
+  <p>Want a Pico build with its own screen, touch, joystick, and buttons? That is the separate <a href="https://pulsesensor.com/pages/picodeck-52pi">52Pi PicoDeck Workbench</a>, which builds on the basics you will learn here. For this page, keep the first win simple: three wires, one USB cable, and a live browser waveform.</p>
+
+  <!-- ============ 0. GETTING STARTED ============ -->
+  <h2 id="getting-started">0. Getting Started</h2>
+  <p>Before measuring heartbeats, make sure your computer can talk to your Raspberry Pi Pico 2 W. Doing this setup first saves debugging time later, because if a plain Blink sketch uploads, you know the board, cable, port, and IDE are all healthy before any sensor wiring is involved.</p>
+
+  <h3>What you'll learn</h3>
+  <ul>
+    <li>Installing Arduino IDE 2.x</li>
+    <li>Adding Raspberry Pi Pico 2 W board support</li>
+    <li>Selecting the right board and port</li>
+    <li>Uploading your first test sketch</li>
+    <li>Installing the libraries this build needs</li>
+  </ul>
+
+  <h3>Step 1: Install Arduino IDE</h3>
+  <ol>
+    <li>Download Arduino IDE 2.x from <a href="https://www.arduino.cc/en/software">arduino.cc</a>.</li>
+    <li>Install it for your operating system.</li>
+    <li>Open Arduino IDE.</li>
+  </ol>
+
+  <h3>Step 2: Add Raspberry Pi Pico 2 W board support</h3>
+  <ol>
+    <li>Open Arduino IDE <strong>Preferences</strong> (Settings).</li>
+    <li>In <strong>Additional Boards Manager URLs</strong>, add the Arduino-Pico (earlephilhower) boards URL: <code>https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json</code></li>
+    <li>Open <strong>Tools &rarr; Board &rarr; Boards Manager</strong>.</li>
+    <li>Search for <strong>Raspberry Pi Pico / RP2040 / RP2350</strong> and install the <strong>Raspberry Pi Pico/RP2040/RP2350</strong> boards package by Earle F. Philhower, III.</li>
+  </ol>
+
+  <h3>Step 3: Select your board</h3>
+  <ol>
+    <li>Connect the Pico 2 W with a USB data cable (some cables are charge-only; if no port appears, swap the cable).</li>
+    <li>Under <strong>Tools &rarr; Board</strong>, choose <strong>Raspberry Pi Pico 2 W</strong>.</li>
+    <li>Under <strong>Tools &rarr; Port</strong>, choose the serial port that appears when the board is connected.</li>
+  </ol>
+
+  <h3>Step 4: Test upload (Blink)</h3>
+  <p>Upload the built-in Blink example first (<strong>File &rarr; Examples &rarr; 01.Basics &rarr; Blink</strong>). If Blink uploads and the onboard LED blinks, your board, cable, port, and IDE setup are ready for PulseSensor.</p>
+
+  <h3>Step 5: Install the libraries</h3>
+  <ol>
+    <li>Open <strong>Tools &rarr; Manage Libraries</strong>.</li>
+    <li>Search for <strong>PulseSensor Playground</strong> and install the library by World Famous Electronics.</li>
+    <li>Search for <strong>RPI_PICO_TimerInterrupt</strong> and install it. The PulseSensor Playground beat detector currently relies on this timer library on the RP2040/RP2350 core, so install it now to avoid a compile error.</li>
+  </ol>
+
+  <div class="pcd-aside"><strong>Known rough edge:</strong> That extra timer library is a temporary step. We are working to smooth the PulseSensor Playground timing path on Arduino-Pico so this dependency goes away in a future release. For now, install <code>RPI_PICO_TimerInterrupt</code> and you are set.</div>
+
+  <div class="pcd-ok">
+    <strong>Success looks like&hellip;</strong>
+    <ul style="margin:8px 0 0;">
+      <li>Arduino IDE reports the upload completed.</li>
+      <li>The Pico 2 W shows up as a selectable board and port.</li>
+      <li>The onboard LED Blink test runs.</li>
+      <li>Both libraries install without errors.</li>
+    </ul>
+  </div>
+
+  <!-- ============ 1. WIRE PULSESENSOR ============ -->
+  <h2 id="wire">1. Wire PulseSensor To Pico 2 W</h2>
+  <p>PulseSensor has three wires: <span class="wire-red">red</span> for power, <span class="wire-blk">black</span> for ground, and <span class="wire-pur">purple</span> for the signal. On a solderless breadboard, run a jumper from each PulseSensor lead to the matching Pico 2 W pin. Keep the sensor flat and still while you work, and power the sensor from 3.3&nbsp;V so the Pico's analog input stays in a safe range.</p>
+
+  <!-- WIRING DIAGRAM + PINOUT CALLOUT (2-up).
+       SWAP FOR REAL PHOTO: both figures use the placeholder SVG
+       (circuit-placeholder.svg), flagged as a draft pending hardware validation.
+       Replace the left figure with a close, well-lit top-down of the three jumper
+       wires landing on 3V3 / GND / GP28. The right figure crops the labeled green
+       Pico body group from the same SVG; replace with a clean Pico 2 W pinout once
+       GP28=pin 34, 3V3=pin 36, GND=pin 33/38 are confirmed on a real board.
+       Note that ADC0 (GP26) / ADC1 (GP27) are deliberately left free for the
+       52Pi PicoDeck joystick — confirm that reservation appears in the final art. -->
+  <div class="pcd-screens">
+    <figure>
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_Pico_2_W/main/docs/wiring/circuit-placeholder.svg" alt="Breadboard wiring: PulseSensor red to 3V3, black to GND, purple to GP28 / ADC2 on a Raspberry Pi Pico 2 W seated across the center channel of a solderless breadboard." />
+      <figcaption>The whole hookup: three wires, three pins. Match the labels on the Pico, not the colors from another kit.</figcaption>
+    </figure>
+    <figure>
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_Pico_2_W/main/docs/wiring/pico-2-w-pinout-callout.svg" alt="Raspberry Pi Pico 2 W pinout callout: 3V3 for power, GND for ground, GP28 / ADC2 for the PulseSensor signal. ADC0 (GP26) and ADC1 (GP27) are left free, reserved for the 52Pi PicoDeck joystick." />
+      <figcaption>Use <code>GP28</code> / <code>ADC2</code> for the signal. <code>ADC0</code> and <code>ADC1</code> are deliberately left open for the 52Pi PicoDeck joystick, so the same wiring carries over to that later build.</figcaption>
+    </figure>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>PulseSensor wire</th><th>Pico 2 W pin</th><th>Physical pin</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="wire-pur">Purple</span> (Signal)</td><td><code>GP28</code> / <code>ADC2</code></td><td>Pin 34</td><td>Analog input that reads the heartbeat signal.</td></tr>
+      <tr><td><span class="wire-red">Red</span> (Power)</td><td><code>3V3</code></td><td>Pin 36</td><td>Power the sensor from the Pico's 3.3&nbsp;V supply. Do not use 5&nbsp;V / VBUS.</td></tr>
+      <tr><td><span class="wire-blk">Black</span> (Ground)</td><td><code>GND</code></td><td>Pin 33 (or any GND)</td><td>Share ground between the sensor and the Pico.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="pcd-aside"><strong>Draft hardware note:</strong> <code>GP28</code> / <code>ADC2</code> is the current recommended signal pin for this page. We chose <code>GP28</code> for continuity with the 52Pi PicoDeck, whose joystick uses <code>ADC0</code> and <code>ADC1</code>, so the same pin works across both builds. We will mark it known-good only after the physical Pico 2 W bench test. The physical-pin numbers (34, 36, 33) follow the Raspberry Pi Pico 2 W datasheet pinout; bench-confirm them against your actual board before publish.</div>
+
+  <p><strong>Why these pins:</strong> The Pico 2 W reads analog voltage on its ADC pins. <code>GP28</code> is <code>ADC2</code>, a free analog input, so the rising and falling light signal from PulseSensor becomes a number your sketch can read with <code>analogRead(28)</code>. Red and black just give the sensor clean, safe power and a shared ground.</p>
+
+  <!-- ============ CONCEPT: THE SIGNAL ============ -->
+  <h2>Concept: The PulseSensor Signal</h2>
+  <p>PulseSensor shines light into your fingertip or earlobe and measures how much bounces back. With each heartbeat, blood volume changes slightly and the reflected light changes with it. That gives the Pico a smoothly rising and falling analog signal, one wave per beat.</p>
+  <p>On the Pico 2 W with the Arduino-Pico core, <code>analogRead</code> returns a 10-bit value from <code>0</code> to <code>1023</code>. We keep that default so the classic PulseSensor Playground threshold of about <code>550</code> works as written: when the signal climbs past the threshold on the way up, the library marks the start of a beat. From those beats it derives BPM (how fast) and IBI (the gap between beats). You do not have to compute any of that yourself; the library hands you the numbers and you forward them to the browser.</p>
+
+  <!-- ============ 2. SEND DATA OVER USB ============ -->
+  <h2 id="send-data">2. Send PulseSensor Data Over USB</h2>
+  <p>This is the only sketch you need to flash. It reads the PulseSensor signal, lets PulseSensor Playground detect beats, and prints one line of comma-separated values about 50 times per second over USB. The browser will read those lines and draw the waveform.</p>
+
+  <h3>What you'll learn</h3>
+  <ul>
+    <li>How to send browser-friendly data from the Pico 2 W over USB</li>
+    <li>Why the stream uses CSV in the exact order <code>signal,bpm,ibi,beat</code></li>
+    <li>How a steady ~50&nbsp;Hz output makes a smooth waveform</li>
+  </ul>
+
+  <h3>The data contract</h3>
+  <p>The sketch prints newline-delimited lines, one per sample, each a set of four comma-separated integers in this exact order:</p>
+  <pre><code>signal,bpm,ibi,beat</code></pre>
+  <p>A few <code>#</code>-prefixed banner lines may print first; the WebSerial page ignores those. Example output:</p>
+  <pre><code>512,72,833,1
+518,72,833,0
+505,72,833,0</code></pre>
+
+  <h3>Sketch: <code>PulseSensor_Pico_2_W_WebSerial</code></h3>
+  <p>This is the PRIMARY USB-CDC WebSerial streamer. It is split across the <code>.ino</code> wrapper and an <code>_Impl.h</code> implementation header. <!-- COPY: select all inside the box below and copy. --></p>
+  <pre><code>/*
+ * PulseSensor_Pico_2_W_WebSerial.ino
+ * Version: 1.0.0
+ *
+ * Raspberry Pi Pico 2 W USB Serial / Web Serial example.
+ * Streams PulseSensor data as newline-delimited CSV text for browser
+ * Web Serial dashboards or any serial monitor.
+ *
+ * Hardware: Raspberry Pi Pico 2 W, PulseSensor
+ *
+ * Wiring:
+ *   PulseSensor Signal (Purple) - GP28 / ADC2
+ *   PulseSensor Power (Red)     - 3.3V
+ *   PulseSensor Ground (Black)  - GND
+ *
+ * Serial settings:
+ *   Baud: 115200
+ *   Data line format: signal,bpm,ibi,beat
+ *
+ * GP28 / ADC2 is used here so the PulseSensor signal does not use
+ * ADC0 or ADC1, which are commonly used by the 52Pi PicoDeck joystick.
+ *
+ * Copyright World Famous Electronics LLC - see LICENSE
+ * Contributors:
+ *   Joel Murphy, https://pulsesensor.com
+ *   Yury Gitman, https://pulsesensor.com
+ *
+ * Licensed under the MIT License, a copy of which
+ * should have been included with this software.
+ *
+ * This software is for creative and educational use.
+ * It is not intended for medical use.
+ */
+
+#include "PulseSensor_Pico_2_W_WebSerial_Impl.h"
+
+/* ===== PulseSensor_Pico_2_W_WebSerial_Impl.h ===== */
+
+#ifndef PULSESENSOR_PICO_2_W_WEBSERIAL_IMPL_H
+#define PULSESENSOR_PICO_2_W_WEBSERIAL_IMPL_H
+
+#include &lt;PulseSensorPlayground.h&gt;
+
+const int PULSE_INPUT = 28;
+const int PULSE_BLINK = LED_BUILTIN;
+const int THRESHOLD = 550;
+const unsigned long SERIAL_BAUD = 115200;
+const unsigned long OUTPUT_INTERVAL_MS = 20;
+const unsigned long SERIAL_WAIT_MS = 3000;
+const bool PRINT_STARTUP_COMMENTS = true;
+
+PulseSensorPlayground pulseSensor;
+
+bool pulseSensorStarted = false;
+bool beatSinceLastOutput = false;
+unsigned long lastOutputMs = 0;
+
+void setup() {
+  Serial.begin(SERIAL_BAUD);
+
+  unsigned long serialWaitStart = millis();
+  while (!Serial &amp;&amp; (millis() - serialWaitStart &lt; SERIAL_WAIT_MS)) {
+    delay(10);
+  }
+
+  if (PRINT_STARTUP_COMMENTS) {
+    Serial.println("# PulseSensor_Pico_2_W_WebSerial.ino");
+    Serial.println("# PulseSensor.com");
+    Serial.println("# Board: Raspberry Pi Pico 2 W");
+    Serial.println("# PulseSensor signal: GP28 / ADC2");
+    Serial.println("# Format: signal,bpm,ibi,beat");
+  }
+
+  pulseSensor.analogInput(PULSE_INPUT);
+  pulseSensor.blinkOnPulse(PULSE_BLINK);
+  pulseSensor.setThreshold(THRESHOLD);
+
+  pulseSensorStarted = pulseSensor.begin();
+  if (!pulseSensorStarted) {
+    if (PRINT_STARTUP_COMMENTS) {
+      Serial.println("# ERROR: PulseSensor Playground did not start.");
+      Serial.println("# Check board support and installed timer libraries.");
+    }
+    return;
+  }
+
+  if (PRINT_STARTUP_COMMENTS) {
+    Serial.println("# Streaming CSV at 115200 baud.");
+  }
+}
+
+void loop() {
+  if (!pulseSensorStarted) {
+    delay(1000);
+    return;
+  }
+
+  if (pulseSensor.sawStartOfBeat()) {
+    beatSinceLastOutput = true;
+  }
+
+  unsigned long now = millis();
+  if (now - lastOutputMs &gt;= OUTPUT_INTERVAL_MS) {
+    lastOutputMs = now;
+
+    Serial.print(pulseSensor.getLatestSample());
+    Serial.print(',');
+    Serial.print(pulseSensor.getBeatsPerMinute());
+    Serial.print(',');
+    Serial.print(pulseSensor.getInterBeatIntervalMs());
+    Serial.print(',');
+    Serial.println(beatSinceLastOutput ? 1 : 0);
+
+    beatSinceLastOutput = false;
+  }
+}
+
+#endif</code></pre>
+
+  <h3>Notes on the sketch</h3>
+  <ul>
+    <li><code>Serial.begin(115200)</code> opens the USB-CDC serial port the browser will connect to. Keep the baud at <code>115200</code>; the WebSerial page expects it.</li>
+    <li>We print the values by hand in the exact order <code>signal,bpm,ibi,beat</code>. Do not swap in the Playground <code>outputToSerial</code> / <code>SerialOutput</code> helpers here; they emit a different format the WebSerial page will not parse.</li>
+    <li>The <code>beat</code> column is a one-sample flag: <code>1</code> on the line right after a beat is detected, <code>0</code> otherwise. The browser uses it to flash the beat indicator.</li>
+    <li><code>analogReadResolution</code> is left at the Arduino-Pico 10-bit default (<code>0</code>&ndash;<code>1023</code>), which is why the <code>550</code> threshold holds.</li>
+  </ul>
+
+  <h3>Flash it</h3>
+  <p>This page does not use a browser flasher. To upload, either click <strong>Upload</strong> in Arduino IDE with the Pico 2 W and its port selected, or export the compiled binary and drag the <code>.uf2</code> onto the Pico's USB drive.</p>
+
+  <div class="pcd-flash-card">
+    <h2>Flash The Pico 2 W</h2>
+    <span class="ver">PulseSensor_Pico_2_W_WebSerial 1.0.0 &middot; 2026-06-16 &middot; draft</span>
+    <p class="req">No browser flasher on this build &mdash; the Pico 2 W flashes by drag-and-drop. You only need a USB data cable and the compiled <code>.uf2</code>.</p>
+    <ol class="pcd-steps">
+      <li><strong>Enter BOOTSEL mode.</strong> Hold the <code>BOOTSEL</code> button while plugging the Pico into USB, then release it after the drive mounts.</li>
+      <li><strong>Find the drive.</strong> The Pico appears as a USB drive named <code>RP2350</code> or <code>RPI-RP2</code>.</li>
+      <li><strong>Drop the <code>.uf2</code>.</strong> Drag <code>PulseSensor_Pico_2_W_WebSerial.ino.uf2</code> onto that drive. The board reboots and starts streaming.</li>
+    </ol>
+    <p class="reassure">That's the whole flash. No IDE plugin, no command line.</p>
+  </div>
+
+  <div class="pcd-warn"><strong>Draft status:</strong> This sketch is compile-verified for Raspberry Pi Pico 2 W (FQBN <code>rp2040:rp2040:rpipico2w</code>) but has not yet been validated on physical hardware. Treat it as a working draft until we publish bench-test results.</div>
+
+  <h3>First-light option: the raw Serial Plotter sketch</h3>
+  <p>Want to confirm a clean signal before the browser step? Flash this raw sketch instead and open the Arduino <strong>Serial Plotter</strong> at <code>115200</code> baud. It uses no beat-detection library &mdash; just <code>analogRead(28)</code> printed as <code>Signal:&lt;value&gt;</code> lines, with the onboard LED blinking on a simple rising-edge threshold. It is the quickest way to see your first waveform. <!-- COPY: select all inside the box below and copy. --></p>
+  <pre><code>/*
+ * PulseSensor_Pico_2_W_SerialPlotter.ino
+ * Version: 1.0.0
+ *
+ * Raw analog PulseSensor waveform for Raspberry Pi Pico 2 W.
+ * Open Arduino Serial Plotter at 115200 baud.
+ *
+ * Hardware: Raspberry Pi Pico 2 W, PulseSensor
+ *
+ * Wiring:
+ *   PulseSensor Signal (Purple) - GP28 / ADC2
+ *   PulseSensor Power (Red)     - 3.3V
+ *   PulseSensor Ground (Black)  - GND
+ *
+ * This software is for creative and educational use.
+ * It is not intended for medical use.
+ */
+
+const int SENSOR_PIN = 28;
+const int LED_PIN = LED_BUILTIN;
+const int THRESHOLD = 550;
+
+int lastSensorValue = 0;
+unsigned long lastPulseTime = 0;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(LED_PIN, OUTPUT);
+  Serial.println("PulseSensor_Pico_2_W_SerialPlotter.ino");
+  Serial.println("Signal:");
+}
+
+void loop() {
+  int signal = analogRead(SENSOR_PIN);
+
+  if (signal &gt; THRESHOLD &amp;&amp; signal &gt; lastSensorValue &amp;&amp; millis() - lastPulseTime &gt; 300) {
+    lastPulseTime = millis();
+    digitalWrite(LED_PIN, HIGH);
+    delay(20);
+    digitalWrite(LED_PIN, LOW);
+  }
+
+  Serial.print("Signal:");
+  Serial.println(signal);
+
+  lastSensorValue = signal;
+  delay(20);
+}</code></pre>
+  <p class="pcd-cap">The Serial Plotter sketch prints <code>Signal:&lt;value&gt;</code> (the plotter's labeled-data format) &mdash; not the CSV the WebSerial page reads. Use it for first-light confidence, then flash the WebSerial sketch above for the browser dashboard.</p>
+
+  <!-- ============ CONCEPT: WEBSERIAL ============ -->
+  <h2>Concept: WebSerial</h2>
+  <p>WebSerial is a browser feature that lets a Chromium-family browser, such as Chrome, Edge, or Brave, read a serial port directly after you grant permission. There is nothing to install: the PulseSensor WebSerial page asks for the Pico's port, you pick it, and the browser starts reading the USB stream.</p>
+  <p>The Pico sends plain text; the page does the rest. It buffers incoming bytes, splits on newlines, drops any <code>#</code> banner lines, parses the four numbers from each remaining line, and updates the waveform, the signal, BPM, and IBI readouts, the beat indicator, and a raw line view. Because only one program can own a serial port at a time, you must close the Arduino Serial Monitor and Serial Plotter before connecting in the browser.</p>
+
+  <!-- ============ 3. OPEN THE WEBSERIAL DASHBOARD ============ -->
+  <h2 id="webserial">3. Open The WebSerial Dashboard</h2>
+  <p>With the sketch flashed and the Pico still plugged in, the browser becomes your display. No on-board screen, no WiFi: just the USB cable and Chrome.</p>
+
+  <h3>Connect flow</h3>
+  <ol class="pcd-steps">
+    <li>Close the Arduino Serial Monitor and Serial Plotter. Only one app can hold the port.</li>
+    <li>Open the PulseSensor WebSerial page in Chrome, Edge, or Brave: <a href="https://pulsesensor.com/pages/pulsesensor-and-webserial">pulsesensor.com/pages/pulsesensor-and-webserial</a></li>
+    <li>Click <strong>Connect</strong>.</li>
+    <li>In the browser's port chooser, select the Pico 2 W serial port and confirm.</li>
+    <li>Rest your hand on the table and place your finger gently on the PulseSensor face. Wait a few seconds for the waveform to settle.</li>
+  </ol>
+  <p>You should see the waveform start moving immediately (that is the raw signal), and after several clean beats the BPM and IBI readouts settle and the beat indicator flashes in time with your pulse.</p>
+
+  <!-- WEBSERIAL DASHBOARD — "what success looks like" mock.
+       SWAP FOR REAL SCREENSHOT: this is a stand-in of the live PulseSensor WebSerial
+       dashboard (repos/PulseSensorPlayground/resources/webserial-explainer/index.html),
+       which shows em-dash placeholders until a board is connected. Replace with a real
+       Chrome screenshot of a flashed Pico 2 W streaming a live waveform and real numbers
+       (e.g. 512,72,833,1). Do NOT use livecyberdeck-hero.png here — that is the RLCD
+       on-board screen, and this build has NO on-board screen, only the browser view. -->
+  <div class="pcd-hero">
+    <span class="pcd-hero-banner">Draft visual &mdash; replace with live dashboard screenshot</span>
+    <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_Pico_2_W/main/docs/screenshots/webserial-dashboard-mock.svg" alt="PulseSensor WebSerial browser dashboard: a live red pulse waveform with Signal 1884, BPM 72, IBI 833, and Beat 1, plus a blinking heart — the browser acting as the Pico 2 W's display over USB." />
+  </div>
+  <p class="pcd-cap">Draft WebSerial visualization. The live PulseSensor WebSerial page stays the home for the real browser display: waveform on top, Signal / BPM / IBI / Beat values below.</p>
+
+  <div class="pcd-ok">
+    <strong>You'll know it's working when&hellip;</strong>
+    <ul style="margin:8px 0 0;">
+      <li>the dashboard connects to the Pico 2 W serial port and the raw line view keeps updating;</li>
+      <li>the waveform moves smoothly, with clear peaks when your sensor contact is steady;</li>
+      <li>the BPM readout starts blank or <code>0</code>, then settles after several clean beats; and</li>
+      <li>the beat indicator flashes in time with your pulse.</li>
+    </ul>
+  </div>
+
+  <!-- ============ UNDERSTANDING THE FOUR VALUES ============ -->
+  <h2>Understanding The Four Values</h2>
+  <p>Every line the Pico sends is four numbers in this fixed order: <code>signal,bpm,ibi,beat</code>. Here is what each one means and how the dashboard uses it.</p>
+  <table>
+    <thead>
+      <tr><th>Value</th><th>What it is</th><th>How the dashboard uses it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>signal</code></td><td>The raw analog sample (<code>0</code>&ndash;<code>1023</code>) read this instant from <code>GP28</code> / <code>ADC2</code>.</td><td>Drawn point-by-point as the moving waveform.</td></tr>
+      <tr><td><code>bpm</code></td><td>Beats per minute, derived by PulseSensor Playground from recent beats.</td><td>Shown as the BPM readout. May read <code>0</code> or blank until the detector sees a few steady beats.</td></tr>
+      <tr><td><code>ibi</code></td><td>Inter-beat interval: milliseconds between the last two detected beats.</td><td>Shown as the IBI readout; handy for timing experiments.</td></tr>
+      <tr><td><code>beat</code></td><td>A one-sample event flag, <code>1</code> on the line right after a beat is detected, otherwise <code>0</code>.</td><td>Flashes the beat indicator in time with your pulse.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============ PLAYGROUND TIE-INS ============ -->
+  <h2>PulseSensor Playground Tie-Ins</h2>
+  <p>Curious what's under the hood? Every value the Pico streams comes straight from the open-source <a href="https://pulsesensor.com/pages/installing-our-playground-for-pulsesensor-arduino">PulseSensor Playground</a> library &mdash; the very same engine inside the CYD and RLCD CyberDeck builds.</p>
+  <table>
+    <thead>
+      <tr><th>What the browser shows</th><th>Playground call behind it</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Live waveform (<code>signal</code>)</td><td><code>getLatestSample()</code></td></tr>
+      <tr><td>Beat event / blinking heart (<code>beat</code>)</td><td><code>sawStartOfBeat()</code></td></tr>
+      <tr><td>BPM readout (<code>bpm</code>)</td><td><code>getBeatsPerMinute()</code></td></tr>
+      <tr><td>IBI readout (<code>ibi</code>)</td><td><code>getInterBeatIntervalMs()</code></td></tr>
+      <tr><td>Beat threshold (the <code>550</code> trigger)</td><td><code>setThreshold(550)</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============ TROUBLESHOOTING ============ -->
+  <h2 id="troubleshooting">Quick Troubleshooting</h2>
+  <table>
+    <thead>
+      <tr><th>Problem</th><th>Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Browser cannot connect</td><td>Use Chrome, Edge, or Brave on a desktop or laptop. Close the Arduino Serial Monitor and Serial Plotter, then unplug/replug USB and try again.</td></tr>
+      <tr><td>No serial port appears</td><td>Use a real USB data cable (many are charge-only). Confirm the Pico 2 W has the sketch flashed and is plugged straight into the computer, not a hub.</td></tr>
+      <tr><td>Dashboard connects but shows no useful data</td><td>Confirm the sketch prints only <code>signal,bpm,ibi,beat</code> CSV while connected. Don't swap in the Playground <code>outputToSerial</code> / <code>SerialOutput</code> helpers.</td></tr>
+      <tr><td>Flat line</td><td>Check the wiring: <span class="wire-pur">purple</span> signal on <code>GP28</code> / <code>ADC2</code>, <span class="wire-red">red</span> on <code>3V3</code>, <span class="wire-blk">black</span> on <code>GND</code>. Do not power from 5&nbsp;V / VBUS.</td></tr>
+      <tr><td>Noisy or jumpy waveform</td><td>Keep still, use gentle steady pressure, and rest your hand on the table. An earlobe is often steadier than a fingertip.</td></tr>
+      <tr><td>Signal sticks near the top or bottom</td><td>Adjust finger pressure and check the signal wire is on <code>GP28</code>, not another pin.</td></tr>
+      <tr><td>BPM stays blank or <code>0</code></td><td>Give it several clean beats, improve sensor contact, then tune the <code>550</code> threshold if needed.</td></tr>
+      <tr><td>Upload works but WebSerial fails</td><td>Make sure another app (Serial Monitor, Serial Plotter, another browser tab) is not already holding the serial port.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============ CYBERDECK MATRIX (shared include) ============ -->
+  <h2>PulseSensor CyberDeck Matrix</h2>
+  <p>A cyberdeck is whatever board you build it on. These are the PulseSensor builds so far &mdash; same heartbeat engine, different displays. This Pico 2 W page is the browser-is-the-display path:</p>
+  <div id="cyberdeck-matrix">
+  <table>
+    <thead>
+      <tr>
+        <th>Build</th>
+        <th><a href="https://pulsesensor.com/pages/cyd">PulseSensor CyberDeck (CYD)</a></th>
+        <th><a href="https://pulsesensor.com/pages/waveshare-rlcd">PulseSensor RLCD &mdash; LiveCyberDeck</a></th>
+        <th><a href="https://pulsesensor.com/pages/pico-2-w">PulseSensor + Pico 2 W</a></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th>Board</th><td>ESP32-2432S028 "Cheap Yellow Display"</td><td>Waveshare ESP32-S3-RLCD-4.2</td><td>Raspberry Pi Pico 2 W</td></tr>
+      <tr><th>Display</th><td>320&nbsp;&times;&nbsp;240 color touchscreen (backlit)</td><td>400&nbsp;&times;&nbsp;300 reflective (no backlight)</td><td>None on board &mdash; your browser, over USB WebSerial</td></tr>
+      <tr><th>Best for</th><td>Indoors, color &amp; touch</td><td>Daylight, outdoors, eye comfort</td><td>Solderless first build, learning the signal path</td></tr>
+      <tr><th>Power pin</th><td><code>IO21</code></td><td><code>3V3</code></td><td><code>3V3</code></td></tr>
+      <tr><th>Ground pin</th><td><code>GND</code></td><td><code>GND</code></td><td><code>GND</code></td></tr>
+      <tr><th>Signal pin</th><td><code>IO35</code></td><td><code>GP1</code> / <code>GPIO1</code></td><td><code>GP28</code> / <code>ADC2</code></td></tr>
+      <tr><th>Flash</th><td>Browser (ESP Web Tools)</td><td>Browser (ESP Web Tools)</td><td>Drag-and-drop <code>.uf2</code> (BOOTSEL)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <!-- GO-LIVE: this shared matrix include is hydrated by the WFE cyberdeck-matrix.js
+       (same script the CYD and RLCD pages load). Confirm the Pico 2 W column is added
+       upstream and the /pages/pico-2-w slug is live before publishing this page. -->
+  <script defer src="https://worldfamouselectronics.github.io/esp32-s3-RLCD-4.2/cyberdeck-matrix.js"></script>
+
+  <!-- ============ WHAT'S NEXT ============ -->
+  <h2>What You Can Build Next</h2>
+  <p>Once the USB WebSerial build is working, the Pico 2 W becomes a friendly workbench for extensions:</p>
+  <ul>
+    <li>Add a beat LED or a small sound output.</li>
+    <li>Log the serial data for classroom experiments.</li>
+    <li>Build your own custom browser dashboard against the same <code>signal,bpm,ibi,beat</code> contract.</li>
+    <li>Explore wireless or BLE streaming later.</li>
+    <li>Add a display later if the project needs to run away from a computer.</li>
+    <li>Step up to the <a href="https://pulsesensor.com/pages/picodeck-52pi">52Pi PicoDeck Workbench</a> &mdash; TFT, touch, joystick, and buttons &mdash; once the basic signal path is trusted.</li>
+  </ul>
+  <p>Keep the first build simple: clean analog signal, clear USB data, live browser visualization.</p>
+
+  <!-- ============ SOURCE & BUY ============ -->
+  <h2>Get the Source / Get a Sensor</h2>
+  <div class="pcd-cards">
+    <div class="card">
+      <h3>The Source Code</h3>
+      <p>The Pico 2 W WebSerial sketch and the raw Serial Plotter sketch are free and open-source &mdash; wiring docs and the compiled <code>.uf2</code> included.</p>
+      <p><a href="https://github.com/WorldFamousElectronics/PulseSensorPlayground"><strong>PulseSensor Playground on GitHub</strong></a></p>
+      <p>MIT licensed &mdash; fork it, remix it, build something cool.</p>
+    </div>
+    <div class="card">
+      <h3>Need a PulseSensor?</h3>
+      <p>The PulseSensor Kit comes with a stabilizer ring, color-coded cable, ear clip, finger strap, and insulation dots &mdash; everything for the three-wire hookup above.</p>
+      <p><a href="https://pulsesensor.com/products/pulse-sensor-amped"><strong>Get the PulseSensor Kit</strong></a></p>
+      <p style="color:#6B7280; font-size:0.92rem;">The Raspberry Pi Pico 2 W and breadboard are sold separately by the usual electronics shops.</p>
+    </div>
+  </div>
+
+  <p class="disclaimer" style="margin-top:24px;">PulseSensor projects are for creative, educational, and experimental biofeedback. They are not medical devices, are not for diagnosis, treatment, monitoring, or emergency use, and should not be used to make health decisions. Not a medical device and not for medical use.</p>
+
+  <p class="pcd-sendoff">That's it &mdash; three wires, one <code>.uf2</code>, and your own heartbeat draws itself live in the browser. Go give it a try. <span style="color:#E63946;">&#9829;</span></p>
+  <p class="pcd-foot">Made by World Famous Electronics. Free and open-source (MIT). An educational biofeedback demo &mdash; not a medical device. Heartbeats in your project, lickety-split. <span class="heart">&#9829;</span></p>
+</div>
