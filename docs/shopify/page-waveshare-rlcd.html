@@ -246,6 +246,20 @@
     </tbody>
   </table>
 
+  <h2>Advanced Notes</h2>
+  <p>The full pinout. LiveCyberDeck targets the Waveshare ESP32-S3-RLCD-4.2: ESP32-S3, 16&nbsp;MB flash, 8&nbsp;MB PSRAM, and an ST7305 400&nbsp;&times;&nbsp;300 reflective LCD.</p>
+  <pre><code>PulseSensor signal   GPIO1   (ADC1_CH0, rear-header GP1)
+Display SCK          GPIO11
+Display MOSI         GPIO12
+Display DC           GPIO5
+Display CS           GPIO40
+Display RST          GPIO41
+KEY button           GPIO18  (light/dark toggle)
+BOOT button          GPIO0
+I2C SDA / SCL        GPIO13 / GPIO14  (SHTC3 @ 0x70)
+Battery sense        ADC1_CH3 (GPIO4)</code></pre>
+  <p>PulseSensor Playground expects 10-bit samples, so the firmware calls <code>analogReadResolution(10)</code> at startup. The beat threshold (the <code>TRIGGER</code> line) starts at <code>setThreshold(550)</code>.</p>
+
   <h2>Get the Source / Get a Sensor</h2>
   <div class="rlcd-cards">
     <div class="card">
@@ -261,20 +275,6 @@
       <p style="color:#6B7280; font-size:0.92rem;">The Waveshare board is sold separately by Waveshare and the usual electronics shops.</p>
     </div>
   </div>
-
-  <h2>Hardware Details &amp; Pinout</h2>
-  <p>LiveCyberDeck targets the Waveshare ESP32-S3-RLCD-4.2: ESP32-S3, 16&nbsp;MB flash, 8&nbsp;MB PSRAM, and an ST7305 400&nbsp;&times;&nbsp;300 reflective LCD.</p>
-  <pre><code>PulseSensor signal   GPIO1   (ADC1_CH0, rear-header GP1)
-Display SCK          GPIO11
-Display MOSI         GPIO12
-Display DC           GPIO5
-Display CS           GPIO40
-Display RST          GPIO41
-KEY button           GPIO18  (light/dark toggle)
-BOOT button          GPIO0
-I2C SDA / SCL        GPIO13 / GPIO14  (SHTC3 @ 0x70)
-Battery sense        ADC1_CH3 (GPIO4)</code></pre>
-  <p>PulseSensor Playground expects 10-bit samples, so the firmware calls <code>analogReadResolution(10)</code> at startup. The beat threshold (the <code>TRIGGER</code> line) starts at <code>setThreshold(550)</code>.</p>
 
   <p class="rlcd-sendoff">That's it &mdash; three wires, one click, and your own heartbeat is on the screen. Go give it a try. <span style="color:#E63946;">&#9829;</span></p>
   <p class="rlcd-foot">Made by World Famous Electronics. Free and open-source (MIT). An educational biofeedback demo &mdash; not a medical device. Heartbeats in your project, lickety-split. <span class="heart">&#9829;</span></p>
