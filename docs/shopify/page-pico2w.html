@@ -124,7 +124,6 @@
   <div class="pcd-cta-row">
     <a class="pcd-cta pcd-cta-primary" href="#wire">Wire It Up</a>
     <a class="pcd-cta pcd-cta-secondary" href="#webserial">Open The WebSerial Dashboard</a>
-    <a class="pcd-cta pcd-cta-tertiary" href="https://pulsesensor.com/pages/cyberdeck-matrix">Compare The CyberDeck Paths</a>
   </div>
 
   <p class="disclaimer">Educational biofeedback demo. Not a medical device and not for medical use.</p>
@@ -583,35 +582,6 @@ void loop() {
       <tr><td>Upload works but WebSerial fails</td><td>Make sure another app (Serial Monitor, Serial Plotter, another browser tab) is not already holding the serial port.</td></tr>
     </tbody>
   </table>
-
-  <!-- ============ CYBERDECK MATRIX (shared include) ============ -->
-  <h2>PulseSensor CyberDeck Matrix</h2>
-  <p>A cyberdeck is whatever board you build it on. These are the PulseSensor builds so far &mdash; same heartbeat engine, different displays. This Pico 2 W page is the browser-is-the-display path:</p>
-  <div id="cyberdeck-matrix">
-  <table>
-    <thead>
-      <tr>
-        <th>Build</th>
-        <th><a href="https://pulsesensor.com/pages/cyd">PulseSensor CyberDeck (CYD)</a></th>
-        <th><a href="https://pulsesensor.com/pages/waveshare-rlcd">PulseSensor RLCD &mdash; LiveCyberDeck</a></th>
-        <th><a href="https://pulsesensor.com/pages/pico-2-w">PulseSensor + Pico 2 W</a></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><th>Board</th><td>ESP32-2432S028 "Cheap Yellow Display"</td><td>Waveshare ESP32-S3-RLCD-4.2</td><td>Raspberry Pi Pico 2 W</td></tr>
-      <tr><th>Display</th><td>320&nbsp;&times;&nbsp;240 color touchscreen (backlit)</td><td>400&nbsp;&times;&nbsp;300 reflective (no backlight)</td><td>None on board &mdash; your browser, over USB WebSerial</td></tr>
-      <tr><th>Best for</th><td>Indoors, color &amp; touch</td><td>Daylight, outdoors, eye comfort</td><td>Solderless first build, learning the signal path</td></tr>
-      <tr><th>Power pin</th><td><code>IO21</code></td><td><code>3V3</code></td><td><code>3V3</code></td></tr>
-      <tr><th>Ground pin</th><td><code>GND</code></td><td><code>GND</code></td><td><code>GND</code></td></tr>
-      <tr><th>Signal pin</th><td><code>IO35</code></td><td><code>GP1</code> / <code>GPIO1</code></td><td><code>GP28</code> / <code>ADC2</code></td></tr>
-      <tr><th>Flash</th><td>Browser (ESP Web Tools)</td><td>Browser (ESP Web Tools)</td><td>Drag-and-drop <code>.uf2</code> (BOOTSEL)</td></tr>
-    </tbody>
-  </table>
-  </div>
-  <!-- GO-LIVE: this shared matrix include is hydrated by the WFE cyberdeck-matrix.js
-       (same script the CYD and RLCD pages load). Confirm the Pico 2 W column is added
-       upstream and the /pages/pico-2-w slug is live before publishing this page. -->
-  <script defer src="https://worldfamouselectronics.github.io/esp32-s3-RLCD-4.2/cyberdeck-matrix.js"></script>
 
   <!-- ============ WHAT'S NEXT ============ -->
   <h2>What You Can Build Next</h2>
