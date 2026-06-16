@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="460" viewBox="0 0 720 460" role="img" aria-labelledby="title desc">
+  <title id="title">PulseSensor WebSerial dashboard mock</title>
+  <desc id="desc">A browser window showing the PulseSensor WebSerial dashboard: a live salmon-red heartbeat waveform on a dark gridded panel, four stat tiles for SIGNAL, BPM, IBI and BEAT, and a mono line showing raw serial data at 115200 baud.</desc>
+  <defs>
+    <style>
+      .bg{fill:#f7f4ee}
+      .win{fill:#ffffff;stroke:#d9d2c5;stroke-width:2}
+      .titlebar{fill:#FFFDF7;stroke:#d9d2c5;stroke-width:2}
+      .addr{fill:#f1ede4;stroke:#d9d2c5;stroke-width:1.5}
+      .ink{fill:#2B2B2B}
+      .muted{fill:#6B7280}
+      .h{font:700 17px Arial,sans-serif}
+      .lbl{font:700 12px Arial,sans-serif;letter-spacing:1px}
+      .num{font:700 30px Arial,sans-serif}
+      .unit{font:600 11px Arial,sans-serif}
+      .url{font:600 13px 'Courier New',monospace}
+      .mono{font:600 13px 'Courier New',monospace}
+      .tiny{font:600 11px Arial,sans-serif}
+      .panel{fill:#1A1A1A;stroke:#2B2B2B;stroke-width:1.5}
+      .grid{stroke:#2c2c2c;stroke-width:1}
+      .gridc{stroke:#3a3a3a;stroke-width:1}
+      .trace{fill:none;stroke:#E63946;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+      .traceglow{fill:none;stroke:#E63946;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;opacity:0.18}
+      .tile{fill:#FFFDF7;stroke:#e6dfd2;stroke-width:1.5}
+      .dot{stroke:none}
+    </style>
+  </defs>
+
+  <!-- page background -->
+  <rect class="bg" width="720" height="460"/>
+
+  <!-- browser window -->
+  <rect class="win" x="24" y="22" width="672" height="416" rx="12"/>
+
+  <!-- title bar -->
+  <path class="titlebar" d="M24 34 a12 12 0 0 1 12 -12 H684 a12 12 0 0 1 12 12 V58 H24 Z"/>
+  <circle class="dot" cx="48" cy="40" r="6" fill="#E63946"/>
+  <circle class="dot" cx="68" cy="40" r="6" fill="#f1c40f"/>
+  <circle class="dot" cx="88" cy="40" r="6" fill="#2ecc71"/>
+  <!-- address pill -->
+  <rect class="addr" x="116" y="29" width="500" height="22" rx="11"/>
+  <circle cx="132" cy="40" r="3.5" fill="#6B7280"/>
+  <text class="url muted" x="146" y="44">pulsesensor.com/pages/pulsesensor-and-webserial</text>
+
+  <!-- header row inside window -->
+  <text class="h ink" x="44" y="84">PulseSensor WebSerial</text>
+  <circle cx="556" cy="79" r="5" fill="#2ecc71"/>
+  <text class="tiny muted" x="568" y="83">Connected · Pico 2 W</text>
+
+  <!-- live waveform panel (dark) -->
+  <rect class="panel" x="44" y="98" width="632" height="186" rx="8"/>
+  <clipPath id="wclip"><rect x="44" y="98" width="632" height="186" rx="8"/></clipPath>
+  <g clip-path="url(#wclip)">
+    <!-- fine grid -->
+    <line class="grid" x1="44"  y1="128" x2="676" y2="128"/>
+    <line class="grid" x1="44"  y1="158" x2="676" y2="158"/>
+    <line class="gridc" x1="44" y1="191" x2="676" y2="191"/>
+    <line class="grid" x1="44"  y1="224" x2="676" y2="224"/>
+    <line class="grid" x1="44"  y1="254" x2="676" y2="254"/>
+    <line class="grid" x1="100" y1="98"  x2="100" y2="284"/>
+    <line class="grid" x1="156" y1="98"  x2="156" y2="284"/>
+    <line class="grid" x1="212" y1="98"  x2="212" y2="284"/>
+    <line class="grid" x1="268" y1="98"  x2="268" y2="284"/>
+    <line class="grid" x1="324" y1="98"  x2="324" y2="284"/>
+    <line class="grid" x1="380" y1="98"  x2="380" y2="284"/>
+    <line class="grid" x1="436" y1="98"  x2="436" y2="284"/>
+    <line class="grid" x1="492" y1="98"  x2="492" y2="284"/>
+    <line class="grid" x1="548" y1="98"  x2="548" y2="284"/>
+    <line class="grid" x1="604" y1="98"  x2="604" y2="284"/>
+
+    <!-- heartbeat trace: smooth rise/fall with sharp peaks, scrolling L-to-R -->
+    <path class="traceglow" d="M44 191
+      C70 191 78 188 92 188 C104 188 110 198 120 198
+      L132 198 L140 150 L150 246 L160 178 L170 191
+      C190 191 198 188 214 188 C226 188 232 198 242 198
+      L254 198 L262 150 L272 246 L282 178 L292 191
+      C312 191 320 188 336 188 C348 188 354 198 364 198
+      L376 198 L384 150 L394 246 L404 178 L414 191
+      C434 191 442 188 458 188 C470 188 476 198 486 198
+      L498 198 L506 150 L516 246 L526 178 L536 191
+      C556 191 564 188 580 188 C592 188 598 198 608 198
+      L620 198 L628 156 L636 232 L644 184 L652 191
+      L676 191"/>
+    <path class="trace" d="M44 191
+      C70 191 78 188 92 188 C104 188 110 198 120 198
+      L132 198 L140 150 L150 246 L160 178 L170 191
+      C190 191 198 188 214 188 C226 188 232 198 242 198
+      L254 198 L262 150 L272 246 L282 178 L292 191
+      C312 191 320 188 336 188 C348 188 354 198 364 198
+      L376 198 L384 150 L394 246 L404 178 L414 191
+      C434 191 442 188 458 188 C470 188 476 198 486 198
+      L498 198 L506 150 L516 246 L526 178 L536 191
+      C556 191 564 188 580 188 C592 188 598 198 608 198
+      L620 198 L628 156 L636 232 L644 184 L652 191
+      L676 191"/>
+    <!-- leading "now" marker at the latest peak -->
+    <circle cx="636" cy="232" r="3.5" fill="#E63946"/>
+  </g>
+  <text class="tiny" x="56" y="116" fill="#8a8a8a">LIVE PULSE</text>
+
+  <!-- four stat tiles -->
+  <!-- SIGNAL -->
+  <rect class="tile" x="44" y="300" width="150" height="92" rx="8"/>
+  <text class="lbl muted" x="60" y="324">SIGNAL</text>
+  <text class="num ink" x="60" y="362">512</text>
+  <text class="unit muted" x="60" y="381">10-bit ADC</text>
+
+  <!-- BPM -->
+  <rect class="tile" x="204" y="300" width="150" height="92" rx="8"/>
+  <text class="lbl muted" x="220" y="324">BPM</text>
+  <text class="num" x="220" y="362" fill="#E63946">72</text>
+  <text class="unit muted" x="220" y="381">beats / min</text>
+
+  <!-- IBI -->
+  <rect class="tile" x="364" y="300" width="150" height="92" rx="8"/>
+  <text class="lbl muted" x="380" y="324">IBI ms</text>
+  <text class="num ink" x="380" y="362">833</text>
+  <text class="unit muted" x="380" y="381">inter-beat</text>
+
+  <!-- BEAT (pulsing heart) -->
+  <rect class="tile" x="524" y="300" width="152" height="92" rx="8"/>
+  <text class="lbl muted" x="540" y="324">BEAT</text>
+  <g transform="translate(566 360)">
+    <path d="M0 8 C0 1 -8 -5 -15 1 C-22 7 -16 18 0 30 C16 18 22 7 15 1 C8 -5 0 1 0 8 Z"
+          fill="#E63946" opacity="0.18" transform="scale(1.6)" />
+    <path d="M0 8 C0 1 -8 -5 -15 1 C-22 7 -16 18 0 30 C16 18 22 7 15 1 C8 -5 0 1 0 8 Z"
+          fill="#E63946"/>
+  </g>
+  <text class="unit muted" x="612" y="380">detected</text>
+
+  <!-- bottom mono data-contract line -->
+  <line x1="44" y1="408" x2="676" y2="408" stroke="#e6dfd2" stroke-width="1.5"/>
+  <text class="mono muted" x="44" y="426">Raw Serial @ 115200 baud:&#160;&#160;</text>
+  <text class="mono" x="295" y="426" fill="#2B2B2B">512,72,833,1</text>
+</svg>

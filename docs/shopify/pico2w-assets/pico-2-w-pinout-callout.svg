@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="460" viewBox="0 0 640 460" role="img" aria-labelledby="title desc">
+  <title id="title">Raspberry Pi Pico 2 W pinout callout for wiring a PulseSensor</title>
+  <desc id="desc">Top-down Raspberry Pi Pico 2 W board with three highlighted pins: 3V3 physical pin 36 red power wire, GND physical pin 33 black ground wire, and GP28 ADC2 physical pin 34 purple signal wire.</desc>
+  <defs>
+    <style>
+      .bg{fill:#FFFDF7}
+      .panel{fill:#FAFAF4;stroke:#E5E1D6;stroke-width:2}
+      .ink{fill:#2B2B2B}
+      .muted{fill:#6B7280}
+      .h1{font:700 22px Helvetica,Arial,sans-serif}
+      .sub{font:400 13px Helvetica,Arial,sans-serif}
+      .lab{font:700 14px Helvetica,Arial,sans-serif}
+      .labsub{font:400 12px Helvetica,Arial,sans-serif}
+      .pinlab{font:700 9px Helvetica,Arial,sans-serif}
+      .tiny{font:400 12px Helvetica,Arial,sans-serif}
+      .pico{fill:#2E7D52;stroke:#1F5C3B;stroke-width:2.5}
+      .usb{fill:#D7DDE3;stroke:#8D99A5;stroke-width:1.5}
+      .chip{fill:#1F2A24;stroke:#152019;stroke-width:1.5}
+      .badge{fill:#256544}
+      .pin{fill:#EFE9D8;stroke:#B7AE97;stroke-width:1}
+      .pinhole{fill:#FAFAF4}
+      .leader{fill:none;stroke:#2B2B2B;stroke-width:1.4}
+      .leader-sig{fill:none;stroke:#7845B8;stroke-width:1.6}
+      .dot{fill:#2B2B2B}
+      .wire-red{fill:none;stroke:#E63946;stroke-width:5;stroke-linecap:round}
+      .wire-black{fill:none;stroke:#2B2B2B;stroke-width:5;stroke-linecap:round}
+      .wire-sig{fill:none;stroke:#7845B8;stroke-width:5;stroke-linecap:round}
+      .ring-red{fill:none;stroke:#E63946;stroke-width:2.5}
+      .ring-black{fill:none;stroke:#2B2B2B;stroke-width:2.5}
+      .ring-sig{fill:none;stroke:#7845B8;stroke-width:2.5}
+      .note{fill:#FFFDF7;stroke:#E63946;stroke-width:1.5}
+    </style>
+  </defs>
+
+  <rect class="bg" width="640" height="460"/>
+  <rect class="panel" x="14" y="14" width="612" height="432" rx="10"/>
+
+  <text class="h1 ink" x="34" y="48">Raspberry Pi Pico 2 W — PulseSensor wiring</text>
+  <text class="sub muted" x="34" y="69">Three pins to connect. Placeholder graphic — replace with a photo later.</text>
+
+  <!-- ===== Pico board (top-down) ===== -->
+  <!-- USB connector at top -->
+  <rect class="usb" x="286" y="92" width="68" height="22" rx="5"/>
+
+  <!-- board body -->
+  <g id="board">
+    <rect class="pico" x="252" y="112" width="136" height="256" rx="16"/>
+
+    <!-- RF module / antenna hint -->
+    <rect fill="#3C9468" stroke="#1F5C3B" stroke-width="1.5" x="280" y="120" width="80" height="28" rx="4"/>
+    <text class="pinlab" fill="#E9FBF1" x="320" y="138" text-anchor="middle">RP2350 · Wi-Fi</text>
+
+    <!-- center chip -->
+    <rect class="chip" x="290" y="206" width="60" height="56" rx="6"/>
+
+    <!-- label badge -->
+    <rect class="badge" x="276" y="280" width="88" height="44" rx="7"/>
+    <text class="pinlab" fill="#D4F4E3" x="320" y="297" text-anchor="middle">Raspberry Pi</text>
+    <text class="lab" fill="#FFFFFF" x="320" y="316" text-anchor="middle">Pico 2 W</text>
+  </g>
+
+  <!-- castellated pin holes, both sides (20 per side) -->
+  <g id="pins">
+    <!-- left column x=252 (board edge), holes sit on the edge -->
+    <circle class="pin" cx="252" cy="128" r="5.5"/><circle class="pin" cx="252" cy="140" r="5.5"/>
+    <circle class="pin" cx="252" cy="152" r="5.5"/><circle class="pin" cx="252" cy="164" r="5.5"/>
+    <circle class="pin" cx="252" cy="176" r="5.5"/><circle class="pin" cx="252" cy="188" r="5.5"/>
+    <circle class="pin" cx="252" cy="200" r="5.5"/><circle class="pin" cx="252" cy="212" r="5.5"/>
+    <circle class="pin" cx="252" cy="224" r="5.5"/><circle class="pin" cx="252" cy="236" r="5.5"/>
+    <circle class="pin" cx="252" cy="248" r="5.5"/><circle class="pin" cx="252" cy="260" r="5.5"/>
+    <circle class="pin" cx="252" cy="272" r="5.5"/><circle class="pin" cx="252" cy="284" r="5.5"/>
+    <circle class="pin" cx="252" cy="296" r="5.5"/><circle class="pin" cx="252" cy="308" r="5.5"/>
+    <circle class="pin" cx="252" cy="320" r="5.5"/><circle class="pin" cx="252" cy="332" r="5.5"/>
+    <circle class="pin" cx="252" cy="344" r="5.5"/><circle class="pin" cx="252" cy="356" r="5.5"/>
+
+    <!-- right column x=388 -->
+    <circle class="pin" cx="388" cy="128" r="5.5"/><circle class="pin" cx="388" cy="140" r="5.5"/>
+    <circle class="pin" cx="388" cy="152" r="5.5"/><circle class="pin" cx="388" cy="164" r="5.5"/>
+    <circle class="pin" cx="388" cy="176" r="5.5"/><circle class="pin" cx="388" cy="188" r="5.5"/>
+    <circle class="pin" cx="388" cy="200" r="5.5"/><circle class="pin" cx="388" cy="212" r="5.5"/>
+    <circle class="pin" cx="388" cy="224" r="5.5"/><circle class="pin" cx="388" cy="236" r="5.5"/>
+    <circle class="pin" cx="388" cy="248" r="5.5"/><circle class="pin" cx="388" cy="260" r="5.5"/>
+    <circle class="pin" cx="388" cy="272" r="5.5"/><circle class="pin" cx="388" cy="284" r="5.5"/>
+    <circle class="pin" cx="388" cy="296" r="5.5"/><circle class="pin" cx="388" cy="308" r="5.5"/>
+    <circle class="pin" cx="388" cy="320" r="5.5"/><circle class="pin" cx="388" cy="332" r="5.5"/>
+    <circle class="pin" cx="388" cy="344" r="5.5"/><circle class="pin" cx="388" cy="356" r="5.5"/>
+
+    <!-- inner hole highlight on a few for the castellated look -->
+    <circle class="pinhole" cx="252" cy="128" r="2"/><circle class="pinhole" cx="388" cy="128" r="2"/>
+  </g>
+
+  <!-- ===== Highlighted target pins =====
+       Right side, bottom group. Pico physical numbering runs down the left
+       side 1-20 then up... the bottom-right pins we call out:
+       phys 34 = GP28/ADC2, phys 33 = GND, phys 36 = 3V3.
+       Place: GP28 at cy=332, GND at cy=320, 3V3 at cy=356 on right edge.
+  -->
+  <!-- highlight rings -->
+  <circle class="ring-sig" cx="388" cy="320" r="8"/>
+  <circle class="ring-black" cx="388" cy="332" r="8"/>
+  <circle class="ring-red" cx="388" cy="356" r="8"/>
+
+  <!-- short colored wire stubs leaving each highlighted pin -->
+  <path class="wire-sig" d="M396 320 H432"/>
+  <path class="wire-black" d="M396 332 H424"/>
+  <path class="wire-red" d="M396 356 H432"/>
+
+  <!-- ===== Leader lines + labels (right side) ===== -->
+  <!-- GP28 / ADC2 — signal (purple, highlighted) -->
+  <path class="leader-sig" d="M432 320 H470 L470 196"/>
+  <circle class="dot" cx="432" cy="320" r="2.4"/>
+  <rect x="470" y="160" width="148" height="34" rx="6" fill="#FFFDF7" stroke="#7845B8" stroke-width="1.8"/>
+  <text class="lab" fill="#7845B8" x="478" y="178">GP28 / ADC2 · pin 34</text>
+  <text class="labsub" fill="#6B7280" x="478" y="190">Purple wire / signal</text>
+
+  <!-- GND — ground (black) -->
+  <path class="leader" d="M424 332 H452 L452 256 H470"/>
+  <circle class="dot" cx="424" cy="332" r="2.4"/>
+  <text class="lab ink" x="476" y="250">GND · physical pin 33</text>
+  <text class="labsub muted" x="476" y="266">Black wire / ground</text>
+
+  <!-- 3V3 — power (red) -->
+  <path class="leader" d="M432 356 H452 L452 308 H470"/>
+  <circle class="dot" cx="432" cy="356" r="2.4"/>
+  <text class="lab" fill="#E63946" x="476" y="302">3V3 · physical pin 36</text>
+  <text class="labsub muted" x="476" y="318">Red wire / power</text>
+
+  <!-- legend dots next to each label -->
+  <circle cx="466" cy="256" r="3.5" fill="#2B2B2B"/>
+  <circle cx="466" cy="308" r="3.5" fill="#E63946"/>
+
+  <!-- ===== Left-side orientation note ===== -->
+  <text class="labsub muted" x="34" y="156">USB at top</text>
+  <path class="leader" d="M120 152 H160 L160 128" />
+
+  <!-- ===== Bottom note ===== -->
+  <rect class="note" x="34" y="392" width="572" height="42" rx="8"/>
+  <text class="tiny ink" x="48" y="411">ADC0 (GP26) &amp; ADC1 (GP27) are reserved for the 52Pi PicoDeck joystick —</text>
+  <text class="tiny muted" x="48" y="427">that's why the signal goes to GP28.</text>
+</svg>
