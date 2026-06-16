@@ -1,0 +1,475 @@
+<!-- ============================================================
+     PulseSensor CyberDeck on the CYD (ESP32-2432S028) — Shopify page body
+     Paste this into the HTML source view of:
+         pulsesensor.com/admin → Pages → CYD → "<>" Show HTML
+     ----
+     This block is fully self-contained:
+       - All styles are scoped to .cyd-page (won't touch the theme)
+       - Loads ESP Web Tools 10 from unpkg as an ES module
+       - Manifest is hosted on GitHub Pages from the customer repo:
+         https://worldfamouselectronics.github.io/PulseSensor_CYD/manifest.json
+     ============================================================ -->
+
+<style>
+  .cyd-page { max-width: 900px; margin: 0 auto; color: #2B2B2B; background: #FFFFFF; line-height: 1.6; }
+  .cyd-page h1 { font-size: 2.4rem; margin: 0 0 8px; color: #2B2B2B; }
+  .cyd-page h2 { font-size: 1.6rem; margin: 36px 0 12px; color: #2B2B2B; border-bottom: 2px solid #E63946; padding-bottom: 6px; display: inline-block; }
+  .cyd-page h3 { font-size: 1.2rem; margin: 22px 0 8px; color: #2B2B2B; }
+  .cyd-page p { margin: 8px 0 14px; }
+  .cyd-page a { color: #1E88E5; text-decoration: none; }
+  .cyd-page a:hover { text-decoration: underline; }
+  .cyd-page code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: #F5F1EA; padding: 2px 6px; border-radius: 4px; font-size: 0.92em; color: #2B2B2B; }
+  .cyd-page pre { background: #1A1A1A; color: #E8FFFB; padding: 14px 16px; border-radius: 6px; overflow-x: auto; }
+  .cyd-page pre code { background: transparent; color: inherit; padding: 0; }
+  .cyd-page table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; }
+  .cyd-page th, .cyd-page td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #E5E0D6; }
+  .cyd-page th { background: #FFFDF7; font-weight: 700; color: #2B2B2B; }
+  .cyd-page ul, .cyd-page ol { padding-left: 22px; }
+  .cyd-page li { margin: 4px 0; }
+  .cyd-page .lede { font-size: 1.15rem; color: #4A4A4A; margin-bottom: 24px; }
+  .cyd-page .tag { display: inline-block; background: #E63946; color: #fff; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; }
+
+  /* Flash card — the hero call-to-action */
+  .cyd-flash-card { background: #FFFDF7; border: 2px solid #E63946; border-radius: 10px; padding: 28px 24px; margin: 18px 0 28px; text-align: center; }
+  .cyd-flash-card h2 { border: none; margin: 0 0 8px; font-size: 1.5rem; }
+  .cyd-flash-card .req { color: #6B7280; font-size: 0.95rem; margin-bottom: 18px; }
+  .cyd-flash-card esp-web-install-button { --esp-tools-button-background: #E63946; --esp-tools-button-color: #FFFFFF; --esp-tools-button-border-radius: 6px; }
+  .cyd-flash-card .activate-btn { appearance: none; border: 0; border-radius: 6px; background: #E63946; color: #FFFFFF; font-size: 1.15rem; font-weight: 800; padding: 16px 32px; cursor: pointer; letter-spacing: 0.3px; }
+  .cyd-flash-card .activate-btn:hover { background: #c92f3d; }
+  .cyd-flash-card .unsupported { display: none; margin-top: 14px; color: #B45309; font-weight: 600; }
+  /* Show warning slots ONLY when ESP Web Tools marks install as unsupported (wrong browser or non-HTTPS). */
+  esp-web-install-button[install-unsupported] .unsupported { display: block; }
+  .cyd-installer-id { margin: 14px auto 0; max-width: 620px; color: #4B5563; font-size: 0.95rem; line-height: 1.45; }
+
+  /* Warning callout */
+  .cyd-warn { border-left: 4px solid #E63946; background: #FFF5F5; padding: 12px 16px; margin: 14px 0; border-radius: 4px; color: #4A2C2C; }
+
+  /* Wiring photos */
+  .cyd-wiring-hero { margin: 16px 0 18px; }
+  .cyd-photo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 14px 0 18px; }
+  .cyd-photo-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cyd-page figure.cyd-photo { margin: 0; }
+  .cyd-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border: 1px solid #E5E0D6; border-radius: 6px; background: #F5F1EA; }
+  .cyd-wiring-hero img { aspect-ratio: auto; height: auto; object-fit: contain; }
+  .cyd-photo figcaption { font-size: 0.9rem; color: #6B7280; line-height: 1.4; margin-top: 6px; }
+  @media (max-width: 760px) { .cyd-photo-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .cyd-photo-grid, .cyd-photo-grid.three { grid-template-columns: 1fr; } }
+
+  /* Wiring infographic */
+  .cyd-infographic { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+  .cyd-infographic.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cyd-info-panel { border: 1px solid #E5E0D6; border-radius: 8px; background: #FFFDF7; overflow: hidden; }
+  .cyd-info-panel img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; border-bottom: 1px solid #E5E0D6; }
+  .cyd-info-body { padding: 14px; }
+  .cyd-info-kicker { display: inline-block; font-size: 0.76rem; font-weight: 800; color: #FFFFFF; background: #E63946; border-radius: 999px; padding: 3px 9px; margin-bottom: 8px; letter-spacing: 0.3px; text-transform: uppercase; }
+  .cyd-info-panel h3 { margin: 0 0 8px; font-size: 1.08rem; line-height: 1.25; }
+  .cyd-info-panel p { margin: 0 0 8px; font-size: 0.95rem; line-height: 1.45; }
+  .cyd-info-panel ul { margin: 8px 0 0; padding-left: 18px; }
+  .cyd-info-panel li { margin: 3px 0; font-size: 0.92rem; line-height: 1.35; }
+  .cyd-wire-map { list-style: none; padding-left: 0 !important; }
+  .cyd-wire-map li { display: grid; grid-template-columns: 58px 1fr; gap: 8px; align-items: baseline; }
+  .cyd-wire-red { color: #E63946; font-weight: 800; }
+  .cyd-wire-black { color: #111111; font-weight: 800; }
+  .cyd-wire-purple { color: #7B3FB6; font-weight: 800; }
+  @media (max-width: 780px) { .cyd-infographic, .cyd-infographic.two { grid-template-columns: 1fr; } }
+
+  /* Side-by-side screenshots */
+  .cyd-screens { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 14px 0; }
+  .cyd-screens figure { margin: 0; }
+  .cyd-screens img { width: 100%; height: auto; border: 1px solid #E5E0D6; border-radius: 6px; }
+  .cyd-screens figcaption { text-align: center; font-size: 0.9rem; color: #6B7280; margin-top: 6px; }
+  @media (max-width: 600px) { .cyd-screens { grid-template-columns: 1fr; } }
+
+  /* Feature grid */
+  .cyd-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 14px 0; }
+  .cyd-features .f { background: #FFFDF7; border: 1px solid #E5E0D6; border-radius: 6px; padding: 14px; }
+  .cyd-features .f strong { color: #E63946; }
+
+  /* Source / buy footer cards */
+  .cyd-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0; }
+  .cyd-cards .card { border: 1px solid #E5E0D6; border-radius: 8px; padding: 18px; background: #FFFDF7; }
+  .cyd-cards .card h3 { margin-top: 0; }
+  @media (max-width: 600px) { .cyd-cards { grid-template-columns: 1fr; } }
+
+  .cyd-page details { border: 1px solid #E5E0D6; border-radius: 6px; padding: 10px 14px; margin: 14px 0; background: #FFFDF7; }
+  .cyd-page summary { cursor: pointer; font-weight: 700; }
+
+  /* Hero banner */
+  .cyd-hero { margin: 18px 0 24px; border-radius: 10px; overflow: hidden; }
+  .cyd-hero img { width: 100%; height: auto; display: block; }
+</style>
+
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+
+<div class="cyd-page">
+
+  <span class="tag">New Tutorial</span>
+  <h1>PulseSensor CyberDeck on the CYD (ESP32-2432S028)</h1>
+  <p class="lede"><strong>Try it now:</strong> Plug your CyberDeck into USB, click <strong>Install</strong> below, then wire up your PulseSensor. Live heartbeat on a 320×240 TFT in under two minutes — with sound, blinking light, and on-screen volume control. No app to install, no WiFi, no IDE. Just Chrome, Edge, or Brave.</p>
+
+  <div class="cyd-hero">
+    <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_CYD/main/docs/shopify/cyd-hero-banner.jpg" alt="PulseSensor CyberDeck running 1.3.0-launch firmware on an ESP32-2432S028 — live waveform reading 121 BPM next to a finger wearing a red 3D-printed PulseSensor ring">
+  </div>
+
+  <!-- ============ WHAT'S A CYD ============ -->
+  <div class="cyd-what-is">
+    <h2>What's a CYD?</h2>
+    <p>"CYD" is the maker community's nickname for the <strong>ESP32-2432S028</strong> — short for <strong>"Cheap Yellow Display,"</strong> after the bright yellow PCB the early boards shipped on. For pocket change you get an ESP32 microcontroller, a 2.8″ 320×240 color touchscreen, an SD card slot, and a speaker pin in one tiny package. That bundle is why it exploded in the maker community as the go-to board for portable dashboards, retro mini-games, smart-home displays, and — with this firmware — live heart-rate biofeedback.</p>
+    <p>Credit where it's due: YouTuber <a href="https://www.youtube.com/@witnessmenow">Brian Lough</a> is who put the CYD on the map. His "Cheap Yellow Display" video series, Discord, and stream of starter projects turned a random AliExpress board into a thriving maker community — and gave thousands of people their first taste of building a portable touchscreen device.</p>
+    <p>We call our build of it the <strong>PulseSensor CyberDeck</strong> — a CYD running open-source PulseSensor firmware, ready to flash from this page.</p>
+  </div>
+
+  <!-- ============ FLASH CARD ============ -->
+  <div class="cyd-flash-card">
+    <h2>⚡ Flash Your CyberDeck</h2>
+    <esp-web-install-button manifest="https://worldfamouselectronics.github.io/PulseSensor_CYD/manifest.json">
+      <button slot="activate" class="activate-btn">Install PulseSensor CyberDeck</button>
+      <span slot="unsupported" class="unsupported">⚠️ This browser doesn't support WebSerial. Open this page in Chrome, Edge, or Brave on a desktop or laptop.</span>
+      <span slot="not-allowed" class="unsupported">⚠️ WebSerial blocked. Make sure the page is loaded over HTTPS.</span>
+    </esp-web-install-button>
+    <p class="cyd-installer-id"><strong>Installer firmware:</strong> <code>1.3.0-launch</code> - <code>2026-05-26</code>. After flashing, the dashboard should show the same version and date under <strong>PulseSensor.com</strong>.</p>
+    <p class="req" style="margin-top:18px;margin-bottom:0;">First time? After you click Install, your browser will ask which serial port to use. Pick the one labeled with your board's USB-serial chip (often <code>CP210x</code> or <code>CH340</code>).</p>
+  </div>
+
+  <!-- ============ WIRING ============ -->
+  <h2>Wire Your PulseSensor</h2>
+  <p>The PulseSensor uses three color-coded wires. Use this two-step guide before you connect the sensor.</p>
+
+  <div class="cyd-infographic two" aria-label="Two panel wiring guide for the CYD and PulseSensor">
+    <div class="cyd-info-panel">
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_CYD/main/docs/cyd-wiring/cyd-jumper-options.jpeg" alt="Two ESP32-2432S028 boards and two included cable harness examples" loading="lazy">
+      <div class="cyd-info-body">
+        <h3>Identify your board and harness</h3>
+        <p>Look for the <strong>ESP32-2432S028</strong> number in the listing or printed on the board.</p>
+        <ul>
+          <li>Single micro-USB style works.</li>
+          <li>Micro-USB plus USB-C style works.</li>
+          <li>Make sure it includes a <strong>JST-SH 1.0 mm to Dupont jumper harness</strong>.</li>
+          <li>Harness colors vary by seller; the board labels matter most.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cyd-info-panel">
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_CYD/main/docs/cyd-wiring/p3-gpio35-power-gnd.png" alt="Annotated P3 connector on ESP32-2432S028 showing P3, IO35, IO21 power, and GND" loading="lazy">
+      <div class="cyd-info-body">
+        <h3>Wire P3 by label</h3>
+        <p>Plug the white harness into <strong>P3</strong>, then match the PulseSensor wires to the board labels.</p>
+        <ul class="cyd-wire-map">
+          <li>
+<span class="cyd-wire-red">Red</span><span><code>IO21</code> on P3</span>
+</li>
+          <li>
+<span class="cyd-wire-black">Black</span><span><code>GND</code> on P3</span>
+</li>
+          <li>
+<span class="cyd-wire-purple">Purple</span><span><code>IO35</code> on P3</span>
+</li>
+        </ul>
+        <p><strong>Important:</strong> Use P3 <code>IO21</code> as PulseSensor power, not 5V. The firmware reads the PulseSensor signal from P3 <code>IO35</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <figure class="cyd-photo cyd-wiring-hero">
+    <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_CYD/main/docs/cyd-wiring/two-cyd-wiring-examples-cropped.jpeg" alt="Two ESP32-2432S028 boards connected with different colored P3 jumper harnesses" loading="lazy">
+    <figcaption>Two CyberDecks wired with different seller-supplied harness colors.</figcaption>
+  </figure>
+
+  <!-- ============ WHAT YOU'LL SEE ============ -->
+  <h2>What You'll See</h2>
+  <p>After you flash and wire up, press your finger lightly on the sensor. You'll see two states:</p>
+
+  <div class="cyd-screens">
+    <figure>
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_CYD/main/docs/screenshots/searching.svg" alt="ESP32-2432S028 screen searching for signal: yellow waveform, GOOD WAVE header">
+      <figcaption>Searching for signal — yellow waveform</figcaption>
+    </figure>
+    <figure>
+      <img src="https://raw.githubusercontent.com/WorldFamousElectronics/PulseSensor_CYD/main/docs/screenshots/locked.svg" alt="ESP32-2432S028 screen locked on qualified beat: green waveform, BPM, IBI displayed">
+      <figcaption>Locked on qualified beat — green waveform</figcaption>
+    </figure>
+  </div>
+
+  <p>The dashboard tells you what state it's in at a glance:</p>
+  <ul>
+    <li>
+<strong>Yellow → Green.</strong> The waveform starts yellow while the firmware searches for clean beats, then turns green once the quality meter locks at <code>10/12</code>.</li>
+    <li>
+<strong>Header flips.</strong> <code>SIGNAL SEARCH</code> becomes <code>QUALIFIED BEAT</code> the moment lock happens.</li>
+    <li>
+<strong>Numbers settle.</strong> BPM, IBI (milliseconds between beats), and the animated heart all sync to your rhythm. The pulse amplitude meter rises with stronger signals.</li>
+  </ul>
+
+  <!-- ============ FEATURES ============ -->
+  <h2>Features</h2>
+  <p>Four feedback channels turn the CyberDeck into a complete biofeedback teaching tool.</p>
+
+  <div class="cyd-features">
+    <div class="f">
+<strong>Screen.</strong> Waveform, BPM, IBI, quality, and lock state on a 320×240 ILI9341 TFT.</div>
+    <div class="f">
+<strong>Light.</strong> The board's rear red LED blinks and fades on every qualified beat.</div>
+    <div class="f">
+<strong>Sound.</strong> Short heartbeat tone on the onboard speaker (GPIO 26) on each qualified beat.</div>
+    <div class="f">
+<strong>Touch.</strong> Header buttons let you change speaker volume in 10 steps. Default 1/10.</div>
+    <div class="f">
+<strong>Auto re-arm.</strong> If the waveform looks alive but the detector isn't producing beats, the firmware quietly resets it.</div>
+    <div class="f">
+<strong>Change-driven UI.</strong> Only the parts of the screen that change get redrawn — no flicker.</div>
+  </div>
+
+  <!-- ============ SUCCESS LOOKS LIKE ============ -->
+  <div class="cyd-warn" style="border-left-color:#00b89a;background:#F0FFF8;color:#0a3a2a;">
+    <strong>Success looks like:</strong>
+    <ul style="margin:8px 0 0;">
+      <li>
+<strong>Smooth waveform.</strong> Clear peaks matching your heartbeat — yellow first, then green once locked.</li>
+      <li>
+<strong>BPM stabilizes.</strong> Settles to 60–100 within 5–10 seconds.</li>
+      <li>
+<strong>Heart pulses.</strong> The header heart and rear red LED flash on every qualified beat.</li>
+      <li>
+<strong>Sound + light.</strong> Short heartbeat tone on each qualified beat.</li>
+    </ul>
+  </div>
+
+  <!-- ============ PLAYGROUND TIE-INS ============ -->
+  <h2>PulseSensor Playground Tie-Ins</h2>
+  <p>Every reading on the screen comes directly from the <a href="https://pulsesensor.com/pages/installing-our-playground-for-pulsesensor-arduino">PulseSensor Playground</a> library, so what you see on the ESP32-2432S028 display is what you'd see in your own Arduino sketches.</p>
+
+  <table>
+    <thead>
+      <tr>
+<th>What you see on screen</th>
+<th>Playground call behind it</th>
+</tr>
+    </thead>
+    <tbody>
+      <tr>
+<td>Live waveform</td>
+<td><code>getLatestSample()</code></td>
+</tr>
+      <tr>
+<td>Heart pulse / LED blink / tone</td>
+<td><code>sawStartOfBeat()</code></td>
+</tr>
+      <tr>
+<td>"Inside beat" indicator</td>
+<td><code>isInsideBeat()</code></td>
+</tr>
+      <tr>
+<td>BPM number</td>
+<td><code>getBeatsPerMinute()</code></td>
+</tr>
+      <tr>
+<td>IBI number</td>
+<td><code>getInterBeatIntervalMs()</code></td>
+</tr>
+      <tr>
+<td>Amplitude meter</td>
+<td><code>getPulseAmplitude()</code></td>
+</tr>
+      <tr>
+<td>Dotted threshold line</td>
+<td><code>setThreshold(550)</code></td>
+</tr>
+    </tbody>
+  </table>
+
+  <!-- ============ TROUBLESHOOTING ============ -->
+  <h2>Quick Troubleshooting</h2>
+  <table>
+    <thead>
+      <tr>
+<th>Problem</th>
+<th>Fix</th>
+</tr>
+    </thead>
+    <tbody>
+      <tr>
+<td>Install button does nothing</td>
+<td>Use Chrome, Edge, or Brave on a desktop or laptop. Mobile browsers don't support WebSerial yet.</td>
+</tr>
+      <tr>
+<td>No serial port appears in the picker</td>
+<td>Try a different USB cable — many micro-USB cables are charge-only. Plug directly into your computer, not a hub.</td>
+</tr>
+      <tr>
+<td>Flashes but screen stays blank</td>
+<td>The CYD backlight is on GPIO 21. If it's truly dark, you may have a different board variant. Open an <a href="https://github.com/WorldFamousElectronics/PulseSensor_CYD/issues">issue</a> with your board photo.</td>
+</tr>
+      <tr>
+<td>Flat waveform</td>
+<td>Confirm the purple wire is on P3 <code>IO35</code> and the red wire is on P3 <code>IO21</code>. Do not use 5V.</td>
+</tr>
+      <tr>
+<td>Erratic readings</td>
+<td>Use gentle, steady finger pressure. Insulate the back of the sensor. Try the <a href="https://pulsesensor.com/products/gold-stablizer-ring">Stabilizer Ring</a> for the cleanest signal.</td>
+</tr>
+      <tr>
+<td>BPM stays at 0</td>
+<td>Give it 5–10 seconds. The detector needs a few clean beats before it reports BPM.</td>
+</tr>
+    </tbody>
+  </table>
+
+  <h2>PulseSensor CyberDeck Matrix</h2>
+<p>A cyberdeck is whatever board you build it on. These are the PulseSensor CyberDecks so far — same heartbeat engine, different screens:</p>
+<table>
+  <thead>
+    <tr>
+      <th>CyberDeck</th>
+      <th><a href="https://pulsesensor.com/pages/cyd">PulseSensor CyberDeck (CYD)</a></th>
+      <th><a href="https://pulsesensor.com/pages/waveshare-rlcd">PulseSensor RLCD — LiveCyberDeck</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+<th>Board</th>
+<td>ESP32-2432S028 "Cheap Yellow Display"</td>
+<td>Waveshare ESP32-S3-RLCD-4.2</td>
+</tr>
+    <tr>
+<th>Screen</th>
+<td>320 × 240 color touchscreen (backlit)</td>
+<td>400 × 300 reflective (no backlight)</td>
+</tr>
+    <tr>
+<th>Best for</th>
+<td>Indoors, color &amp; touch</td>
+<td>Daylight, outdoors, eye comfort</td>
+</tr>
+    <tr>
+<th>Extras</th>
+<td>Touch, speaker beep, rear LED</td>
+<td>Battery %, temperature &amp; humidity, sparklines</td>
+</tr>
+    <tr>
+<th>Power pin</th>
+<td><code>IO21</code></td>
+<td><code>3V3</code></td>
+</tr>
+    <tr>
+<th>Ground pin</th>
+<td><code>GND</code></td>
+<td><code>GND</code></td>
+</tr>
+    <tr>
+<th>Signal pin</th>
+<td><code>IO35</code></td>
+<td>
+<code>GP1</code> / <code>GPIO1</code>
+</td>
+</tr>
+    <tr>
+<th>Flash</th>
+<td>Browser (ESP Web Tools)</td>
+<td>Browser (ESP Web Tools)</td>
+</tr>
+  </tbody>
+</table>
+
+<!-- ============ ADVANCED NOTES (was collapsed details) ============ -->
+  <h2>Advanced Notes</h2>
+
+  <h3>Hardware details and pinout</h3>
+    <p>The firmware targets the <strong>ESP32-2432S028</strong> board family, commonly sold under the "Cheap Yellow Display" nickname, with an ILI9341 320×240 TFT and XPT2046 resistive touch.</p>
+    <pre><code>PULSE_PIN       = 35
+BACKLIGHT       = 21
+LED_RED_PIN     = 4
+LED_GREEN_PIN   = 16
+LED_BLUE_PIN    = 17
+SPEAKER_PIN     = 26
+TOUCH_IRQ       = 36
+TOUCH_MISO      = 39
+TOUCH_MOSI      = 32
+TOUCH_SCLK      = 25
+TOUCH_CS        = 33</code></pre>
+    <p><strong>Why GPIO 35?</strong> The PulseSensor signal pin was discovered with a small analog pin scanner on a connected CYD. On this revision the signal was visible on <code>IO35</code>, not the originally documented <code>GPIO 36</code>.</p>
+    <p><strong>ESP32 analog quirk.</strong> PulseSensorPlayground's detector expects 10-bit analog samples (<code>0..1023</code>), but ESP32 defaults to 12-bit (<code>0..4095</code>). The firmware calls <code>analogReadResolution(10)</code> at startup to keep the library's beat-detection math in the range it expects.</p>
+
+  <h3>Build from source in Arduino IDE</h3>
+    <ol>
+      <li>Download <code>PulseSensor_CYD.ino</code> from <a href="https://github.com/WorldFamousElectronics/PulseSensor_CYD">the repo</a>.</li>
+      <li>Make a folder named <code>PulseSensor_CYD</code>. Put the <code>.ino</code> inside it.</li>
+      <li>Open it in Arduino IDE 2.x.</li>
+      <li>Install the ESP32 board package (Boards Manager).</li>
+      <li>Install three libraries: <code>TFT_eSPI</code>, <code>PulseSensor Playground</code>, <code>XPT2046_Touchscreen</code>.</li>
+      <li>Configure <code>TFT_eSPI</code> for the ESP32-2432S028 display (the repo's <code>flash-cyd.sh</code> script shows the exact compile flags — preferred over editing the global <code>User_Setup.h</code>).</li>
+      <li>Select your ESP32 board and upload at <code>115200</code> baud.</li>
+    </ol>
+
+  <!-- ============ SOURCE & BUY ============ -->
+  <h2>Get the Source / Get a Sensor</h2>
+
+  <p>Prefer to see it in a browser without a screen? Try <a href="https://pulsesensor.com/pages/pulsesensor-and-webserial"><strong>PulseSensor + WebSerial</strong></a> — same sensor, dashboard runs in Chrome.</p>
+
+  <div class="cyd-cards">
+    <div class="card">
+      <h3>📂 The Source Code</h3>
+      <p>The firmware is intentionally one Arduino <code>.ino</code> file so you can open, read, and modify it in the Arduino IDE.</p>
+      <p><a href="https://github.com/WorldFamousElectronics/PulseSensor_CYD"><strong>github.com/WorldFamousElectronics/PulseSensor_CYD</strong></a></p>
+      <p>MIT licensed. PRs welcome.</p>
+    </div>
+    <div class="card">
+      <h3>🛒 Need a PulseSensor?</h3>
+      <p>The PulseSensor Kit ships with a TPU Stabilizer Ring, color-coded cable, ear clip, finger strap, and vinyl insulation dots.</p>
+      <p><a href="https://pulsesensor.com/products/pulse-sensor-amped"><strong>Get the Kit — $30</strong></a></p>
+    </div>
+  </div>
+
+  <p style="margin-top: 32px; color: #6B7280; font-size: 0.9rem; font-style: italic;">This software is an educational biofeedback demo and is not intended for medical use.</p>
+
+  <p style="margin-top: 12px; color: #6B7280; font-size: 0.9rem;">Made by <a href="https://pulsesensor.com/pages/about-us">World Famous Electronics</a>. Source on <a href="https://github.com/WorldFamousElectronics/PulseSensor_CYD">GitHub</a>. MIT licensed. Heartbeats in your project, lickety-split. ♥</p>
+
+</div>
+
+<!-- ============ END CYD PAGE ============ -->
+
+<!-- =========================================================================
+     CHANGELOG (Claude edits only — Codex changes tracked separately in git)
+     =========================================================================
+     2026-05-26 ~17:10 ET — Post-launch fix: hide ESP Web Tools warning slots
+                            by default; only show when [install-unsupported]
+                            attribute is present (wrong browser or non-HTTPS).
+                            Customers in Chrome on HTTPS no longer see noisy
+                            warnings below the working Install button.
+     2026-05-26 ~16:50 ET — "What's a CYD?" para 1: "$7–$10" → "pocket change"
+                            (avoid dollar amounts for international audience).
+     2026-05-26 ~16:45 ET — Reverted "What You'll See" back to 2 screenshots
+                            (settings-volume + settings-led didn't render well; pulled).
+                            Hero re-crop pending (1600×620 → 1600×640, +20px bottom).
+     2026-05-26 ~16:30 ET — Removed obsolete "Panel 1" / "Panel 2" kicker labels
+                            from the wiring infographic.
+     2026-05-26 ~16:15 ET — Added settings screens to "What You'll See":
+                            * 2 screenshots → 4 (added settings-volume.svg + settings-led.svg).
+                            * Section intro reworded to mention on-screen settings.
+                            * Hero re-cropped to 1600×620 (tighter bottom, same filename).
+     2026-05-26 ~12:15 ET — Final polish before publish:
+                            * Dropped the third "10/12 lock" sentence at end of Playground table.
+                            * Tightened Features intro (removed "screen, light, sound, and touch" since the 4 cards say it).
+                            * Wiring intro: "before you plug anything in" → "before you connect the sensor".
+     2026-05-26 ~12:00 ET — Audit pass for readability, flow, and repetition:
+                            * Lede: "touch volume" → "on-screen volume control";
+                              dropped redundant "(ESP32-2432S028)" parenthetical.
+                            * Removed duplicate "Plug into USB" paragraph in flash card.
+                            * Wiring Panel 1 retitled "Buy" → "Identify".
+                            * Wiring caption trimmed (dropped repeated match-labels-not-colors).
+                            * "What You'll See" tightened from 6 bullets to 3 focused on
+                              visual state changes; dropped "single dashboard" leftover.
+                            * Features intro and troubleshooting now say CyberDeck/CYD
+                              instead of ESP32-2432S028.
+                            * Source/Buy intro reframed positively (no "instead of").
+                            * Hardware Details: dropped personal-repo CYD_Analog_Pin_Scanner
+                            link; "Why GPIO 35?" reads as standalone explanation.
+                            * Medical disclaimer moved from orphan position (after hero)
+                              to bottom near WFE footer.
+     2026-05-26 ~11:30 ET — Hero photo: SVG → real device photo (cyd-hero-banner.jpg).
+                            Added Brian Lough credit to "What's a CYD?" section.
+     2026-05-26 ~11:10 ET — Installer firmware version updated to 1.3.0-launch.
+     2026-05-26 ~10:55 ET — Renamed to "PulseSensor CyberDeck on the CYD (ESP32-2432S028)".
+                            Removed "How to Hold the Sensor" section.
+                            Added "What's a CYD?" explainer section.
+     ========================================================================= -->
