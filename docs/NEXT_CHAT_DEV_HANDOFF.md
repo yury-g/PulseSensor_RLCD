@@ -3,7 +3,17 @@
 _Last updated: 2026-06-16. Author identity for commits: `Yury Gitman <yury@pulsesensor.com>`; always add trailer `Co-Authored-By: Claude Opus 4.8 (1M context)`._
 
 ## Mission
-Keep developing the two customer-facing "PulseSensor CyberDeck" tutorial pages (their copy, code, and the shared comparison matrix) plus the firmware/installer repo. Both pages are LIVE.
+Keep developing the customer-facing PulseSensor maker-tutorial pages (their copy, code, and the shared comparison matrix) plus the firmware/installer repo.
+
+## ⭐ Latest session (2026-06-16): Pico 2 W standalone page SHIPPED LIVE
+A NEW **standalone "PulseSensor + Raspberry Pi Pico 2 W"** tutorial page is **LIVE (soft launch)** at **`https://pulsesensor.com/pages/pico2w`** (Shopify Page `gid://shopify/Page/155796111465`; the old `/pages/pulsesensor-pico-2-w` 301-redirects to it). It is the **browser-is-the-display / WebSerial** path: 3 wires → flash one `.uf2` → open the WebSerial app → live waveform in Chrome (no on-board screen, no WiFi). Signal on **GP28/ADC2**, power 3V3, ground GND. **Hardware-verified** on a real Pico 2 W (it streams `signal,bpm,ibi,beat` @115200 and renders in the live WebSerial dashboard). Source: `docs/shopify/page-pico2w.html`; validated sketches in `docs/shopify/pico2w-sketches/`; the mock SVGs + the **downloadable `.uf2`** are hosted on **WFE Pages `/pico2w/`**; the dev repo is backed up to `yury-g/PulseSensor_RLCD` (origin). The bare Pico is the **foundation, NOT a cyberdeck**, so it does NOT carry the CyberDeck Matrix (that goes on the future 52Pi captouch build). Full detail + the build silo in the `pico2w-standalone-page` memory.
+
+**Immediate next steps (Pico 2 W):**
+- **Real photos** — Yury is shooting 5 iPhone photos (hero · wiring top-down · GP28 close-up · dashboard+finger · parts flat-lay). Swap them onto the live page at the SAME `/pico2w/` filenames on WFE Pages — **no page edit needed**. Full shot list: `~/Documents/Codex/2026-06-16-picodeck-private-silo/reports/pico2w-photo-shotlist.md`.
+- **User-0 test** — the tester invite is written and ready (links to `/pages/pico2w`, the `.uf2`, and the WebSerial app). Collect feedback on the smooth/snappy first-connect; the one unavoidable friction is Chrome's native Connect dialog + a finger on the sensor.
+- **Optional** cross-link from `/pages/pulsesensor-raspberrypi` to `/pages/pico2w`.
+- **Next build (TBD): the 52Pi PicoDeck cyberdeck** (Pico 2 W + 52Pi TFT cap-touch) — the *actual* cyberdeck, which gets the Matrix column and references the pico2w foundation page. A draft + a near-complete cache live in `~/Documents/Codex/2026-06-16-picodeck-private-silo/` (mockups, copy decks, Wokwi project, validated builds). Reuse it; don't rebuild.
+- **WebSerial growth design** (one browser app for ALL decks, USB now / Web-Bluetooth next, via a versioned `signal,bpm,ibi,beat`+`key=value` schema) is DESIGNED but not built: `~/Documents/Codex/2026-06-16-picodeck-private-silo/reports/webserial-universal-visualizer-design.md`. Note: CYD/RLCD don't yet emit a browser-consumable feed — that's the small per-board firmware add to wire them into the one WebSerial app.
 
 ## Live state (verified 2026-06-16)
 | Thing | Where | IDs / notes |
