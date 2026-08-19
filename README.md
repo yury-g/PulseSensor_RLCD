@@ -1,3 +1,5 @@
+> **Deprecated personal development branch.** The release-clean canonical RLCD/Pico 2 W source is [`WorldFamousElectronics/esp32-s3-RLCD-4.2`](https://github.com/WorldFamousElectronics/esp32-s3-RLCD-4.2), with current tutorials on [PulseSensor.com](https://pulsesensor.com). This repository remains for historical development continuity only and must not define current firmware, compatibility, setup, safety, or support policy.
+
 # PulseSensor RLCD Dashboard
 
 Known-working PulseSensor dashboard for the Waveshare ESP32-S3-RLCD-4.2.
